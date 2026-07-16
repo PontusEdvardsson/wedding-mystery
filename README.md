@@ -10,7 +10,8 @@ En statisk QR-sida för ett interaktivt bröllopsmysterium i dark mode.
 - `uppdrag-2.js`: Connections-inspirerat pussel för uppdrag 2.
 - `uppdrag-3.html`: Namnen bakom mysteriet, ett A1Z26-chiffer.
 - `uppdrag-3.js`: chifferlogiken för uppdrag 3.
-- `uppdrag-4.html`: platshållare för nästa uppdrag.
+- `uppdrag-4.html`: Sudoku-uppdrag.
+- `uppdrag-4.js`: Sudoku-logiken för uppdrag 4.
 - `final.html`: platshållare för finalen.
 - `mystery-config.js`: uppdragens ordning, länkar, tider, krav och texter.
 - `shared.js`: gemensam progression, låsning, countdown, preview och reset.
@@ -41,6 +42,14 @@ Chiffer, avkodad relation och godkända svar ligger i `mystery-config.js` under
 
 Chifferdata sparas i `weddingMystery.cipher.uppdrag-3`, inklusive om uppdraget
 är löst och den avkodade sluttexten.
+
+## Uppdrag 4
+
+Sudoku-lösningen och startsiffrorna ligger i `mystery-config.js` under
+`mysterySteps` för `uppdrag-4`, i `puzzle`.
+
+Varje given ruta kan senare få `display` och en rad i `clues`, så att en ruta
+kan visa exempelvis `A` medan lösningsvärdet fortfarande är en siffra.
 
 ## Lägga till uppdrag
 

@@ -42,16 +42,12 @@ function saveWordle() {
 function renderWordle() {
   if (!wordleRoot) return;
 
-  const shouldRefocus =
-    document.activeElement?.classList?.contains("wordle-native-input") || false;
   const wrapper = document.createElement("div");
   const board = document.createElement("div");
   const message = document.createElement("div");
-  const input = renderNativeInput();
   const keyboard = renderKeyboard();
 
   wrapper.className = "wordle";
-  wrapper.addEventListener("pointerdown", () => focusNativeInput());
 
   if (!wordleState.solved && Mystery.isHintUnlocked(step)) {
     const prompt = document.createElement("p");
@@ -84,12 +80,11 @@ function renderWordle() {
   } else {
     message.textContent =
       wordleState.message || "Skriv fem bokstäver och tryck Enter.";
-    wrapper.append(board, message, input, keyboard);
+    wrapper.append(board, message, keyboard);
   }
 
   wordleRoot.replaceChildren(wrapper);
 
-  if (shouldRefocus) focusNativeInput();
   scrollWordleToActiveRow();
 
   if (wordleState.justSolved) {
@@ -145,37 +140,6 @@ function renderSolvedMessage() {
 
   container.append(firstLine, secondLine);
   return container;
-}
-
-function renderNativeInput() {
-  const input = document.createElement("input");
-  input.className = "wordle-native-input";
-  input.type = "text";
-  input.inputMode = "text";
-  input.autocomplete = "off";
-  input.autocapitalize = "characters";
-  input.spellcheck = false;
-  input.maxLength = puzzle.answer.length;
-  input.value = wordleState.currentGuess;
-  input.disabled = isWordleFinished();
-  input.placeholder = "Skriv här";
-  input.setAttribute("aria-label", "Skriv gissning");
-  input.addEventListener("input", (event) => {
-    wordleState.currentGuess = sanitizeGuess(event.target.value);
-    wordleState.message = "";
-    wordleState.shouldShake = false;
-    saveWordle();
-    renderWordle();
-  });
-  input.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      submitWordleGuess();
-      saveWordle();
-      renderWordle();
-    }
-  });
-  return input;
 }
 
 function renderKeyboard() {
@@ -329,14 +293,6 @@ function getGuessResults(guess) {
   return results;
 }
 
-function focusNativeInput() {
-  const input = document.querySelector(".wordle-native-input:not(:disabled)");
-
-  if (input && document.activeElement !== input) {
-    input.focus({ preventScroll: true });
-  }
-}
-
 function scrollWordleToActiveRow() {
   const board = document.querySelector(".wordle-board");
   const activeRow = document.querySelector(".wordle-row.is-active, .wordle-row.solved-flip");
@@ -362,7 +318,6 @@ function scrollResultIntoView() {
 }
 
 document.addEventListener("keydown", (event) => {
-  if (event.target?.classList?.contains("wordle-native-input")) return;
   const key = event.key.toUpperCase();
 
   if (key === "BACKSPACE") {
