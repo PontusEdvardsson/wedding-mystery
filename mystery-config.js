@@ -94,7 +94,7 @@ const mysterySteps = [
         { cell: 12, value: "1", clue: "Platshållare: byt till en ledtråd som ger siffran 1." },
         { cell: 13, value: "9", clue: "Platshållare: byt till en ledtråd som ger siffran 9." },
         { cell: 14, value: "5", clue: "Platshållare: byt till en ledtråd som ger siffran 5." },
-        { cell: 19, value: "9", clue: "Platshållare: byt till en ledtråd som ger siffran 9." },
+        { cell: 19, value: "9", clue: "Största entalssiffran." },
         { cell: 20, value: "8", clue: "Platshållare: byt till en ledtråd som ger siffran 8." },
         { cell: 25, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
         { cell: 27, value: "8", clue: "En spindel har så här många ben." },
