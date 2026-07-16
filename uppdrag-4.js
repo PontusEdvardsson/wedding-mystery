@@ -33,6 +33,7 @@ function normalizeState(savedState) {
     checkedCells: savedState?.checkedCells || {},
     justCompleted: Boolean(savedState?.justCompleted),
     givensRevealed: Boolean(savedState?.givensRevealed),
+    givenEntries: savedState?.givenEntries || {},
   };
 }
 
@@ -47,6 +48,7 @@ function saveState() {
       checkedCells: state.checkedCells,
       justCompleted: state.justCompleted,
       givensRevealed: state.givensRevealed,
+      givenEntries: state.givenEntries,
     })
   );
 }
@@ -58,6 +60,7 @@ function renderSudoku() {
   wrapper.className = "sudoku";
 
   wrapper.append(
+    renderLocalResetAction(),
     renderIntro(),
     renderHintRevealAction(),
     renderBoard(),
@@ -102,7 +105,11 @@ function renderBoard() {
   for (let cell = 0; cell < 81; cell += 1) {
     const given = givenMap.get(cell);
     const button = document.createElement("button");
-    const value = given ? (state.givensRevealed ? given.value : "?") : state.entries[cell] || "";
+    const value = given
+      ? state.givensRevealed
+        ? given.value
+        : state.givenEntries[cell] || "?"
+      : state.entries[cell] || "";
 
     button.type = "button";
     button.className = "sudoku-cell";
@@ -113,7 +120,9 @@ function renderBoard() {
       given
         ? state.givensRevealed
           ? `Ruta ${cell + 1}, ${given.value}`
-          : `Ruta ${cell + 1}, dold ledtråd`
+          : state.givenEntries[cell]
+            ? `Ruta ${cell + 1}, ${state.givenEntries[cell]}, dold ledtråd`
+            : `Ruta ${cell + 1}, dold ledtråd`
         : value
           ? `Ruta ${cell + 1}, ${value}`
           : `Ruta ${cell + 1}, tom`
@@ -127,6 +136,12 @@ function renderBoard() {
         button.setAttribute("aria-expanded", activeClueCell === cell ? "true" : "false");
         button.addEventListener("click", () => toggleGivenClue(cell));
         button.addEventListener("keydown", (event) => handleGivenKeydown(cell, event));
+        button.addEventListener("dragover", (event) => {
+          if (!state.completed) {
+            event.preventDefault();
+          }
+        });
+        button.addEventListener("drop", (event) => handleCellDrop(cell, event));
       }
     } else {
       button.addEventListener("click", () => placeSelectedNumber(cell));
@@ -150,7 +165,7 @@ function renderBoard() {
       button.classList.add("is-correct");
     }
 
-    if (value && !given) {
+    if (value && value !== "?") {
       button.classList.add("has-value");
     }
 
@@ -158,6 +173,25 @@ function renderBoard() {
   }
 
   return board;
+}
+
+function renderLocalResetAction() {
+  const action = document.createElement("div");
+  const button = document.createElement("button");
+
+  action.className = "sudoku-local-reset";
+  button.type = "button";
+  button.className = "secondary-action button-action";
+  button.textContent = "Nollställ sudoku";
+  button.disabled =
+    !state.completed &&
+    !state.givensRevealed &&
+    Object.keys(state.entries).length === 0 &&
+    Object.keys(state.givenEntries).length === 0;
+  button.addEventListener("click", resetSudoku);
+
+  action.appendChild(button);
+  return action;
 }
 
 function renderIntro() {
@@ -214,6 +248,7 @@ function renderNumberHelp() {
 
 function revealGivens() {
   state.givensRevealed = true;
+  state.givenEntries = {};
   activeClueCell = null;
   saveState();
   renderSudoku();
@@ -302,10 +337,23 @@ function handleGivenKeydown(cell, event) {
     ArrowDown: 9,
   }[event.key];
 
-  if (!direction) return;
+  if (direction) {
+    event.preventDefault();
+    focusCell(cell + direction, { includeGiven: true });
+    return;
+  }
 
-  event.preventDefault();
-  focusCell(cell + direction, { includeGiven: true });
+  if (/^[1-9]$/.test(event.key)) {
+    event.preventDefault();
+    selectedNumber = event.key;
+    setCellValue(cell, event.key);
+    return;
+  }
+
+  if (event.key === "Backspace" || event.key === "Delete") {
+    event.preventDefault();
+    setCellValue(cell, "");
+  }
 }
 
 function renderStatus() {
@@ -438,12 +486,18 @@ function cancelNumberPointerDrag() {
 }
 
 function setCellValue(cell, rawValue) {
-  if (givenMap.has(cell) || state.completed) return;
+  const given = givenMap.get(cell);
+
+  if (state.completed || (given && state.givensRevealed)) return;
 
   focusedCell = cell;
   const value = String(rawValue).replace(/[^1-9]/g, "").slice(0, 1);
 
-  if (value) {
+  if (given && value) {
+    state.givenEntries[cell] = value;
+  } else if (given) {
+    delete state.givenEntries[cell];
+  } else if (value) {
     state.entries[cell] = value;
   } else {
     delete state.entries[cell];
@@ -499,9 +553,11 @@ function checkSudoku() {
   let hasError = false;
 
   for (let cell = 0; cell < 81; cell += 1) {
-    if (givenMap.has(cell)) continue;
+    const given = givenMap.get(cell);
 
-    const value = state.entries[cell] || "";
+    if (given && state.givensRevealed) continue;
+
+    const value = given ? state.givenEntries[cell] || "" : state.entries[cell] || "";
 
     if (!value) {
       hasEmpty = true;
@@ -534,9 +590,31 @@ function checkSudoku() {
 
 function clearEntries() {
   state.entries = {};
+  state.givenEntries = {};
   state.checkedCells = {};
   state.message = "";
   state.messageTone = "neutral";
+  saveState();
+  renderSudoku();
+}
+
+function resetSudoku() {
+  state.entries = {};
+  state.givenEntries = {};
+  state.checkedCells = {};
+  state.givensRevealed = false;
+  state.completed = false;
+  state.justCompleted = false;
+  state.message = "";
+  state.messageTone = "neutral";
+  activeClueCell = null;
+  selectedNumber = null;
+  focusedCell = null;
+  const progress = JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
+  if (progress.completed) {
+    delete progress.completed[step.id];
+    localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
+  }
   saveState();
   renderSudoku();
 }
@@ -568,6 +646,8 @@ function renderTestTools() {
   `;
 
   container.querySelector("[data-test-solve]").addEventListener("click", () => {
+    state.givensRevealed = true;
+    state.givenEntries = {};
     for (let cell = 0; cell < 81; cell += 1) {
       if (!givenMap.has(cell)) {
         state.entries[cell] = puzzle.solution[cell];
