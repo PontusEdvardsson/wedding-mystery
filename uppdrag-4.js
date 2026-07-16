@@ -4,6 +4,10 @@ const root = document.querySelector("[data-sudoku-root]");
 const givenMap = new Map(puzzle.givens.map((given) => [given.cell, given]));
 
 let hintWasUnlocked = Mystery.isHintUnlocked(step);
+let selectedNumber = null;
+let focusedCell = null;
+let pointerDrag = null;
+let suppressNextNumberClick = false;
 
 const state = normalizeState(
   JSON.parse(localStorage.getItem(mysteryStorageKeys.sudoku) || "null")
@@ -57,7 +61,7 @@ function renderSudoku() {
     wrapper.appendChild(hint);
   }
 
-  wrapper.append(renderBoard());
+  wrapper.append(renderBoard(), renderNumberBank());
 
   if (puzzle.clues.length > 0) {
     wrapper.append(renderClues());
@@ -94,36 +98,103 @@ function renderBoard() {
 
   for (let cell = 0; cell < 81; cell += 1) {
     const given = givenMap.get(cell);
-    const input = document.createElement("input");
+    const button = document.createElement("button");
     const value = given?.display || given?.value || state.entries[cell] || "";
 
-    input.className = "sudoku-cell";
-    input.inputMode = "numeric";
-    input.maxLength = 1;
-    input.autocomplete = "off";
-    input.disabled = state.completed || Boolean(given);
-    input.value = value;
-    input.setAttribute("aria-label", `Ruta ${cell + 1}`);
+    button.type = "button";
+    button.className = "sudoku-cell";
+    button.disabled = state.completed || Boolean(given);
+    button.textContent = value;
+    button.setAttribute(
+      "aria-label",
+      value ? `Ruta ${cell + 1}, ${value}` : `Ruta ${cell + 1}, tom`
+    );
 
     if (given) {
-      input.classList.add("is-given");
+      button.classList.add("is-given");
     } else {
-      input.addEventListener("input", (event) => handleInput(cell, event.target.value));
-      input.addEventListener("keydown", (event) => handleCellKeydown(cell, event));
+      button.addEventListener("click", () => placeSelectedNumber(cell));
+      button.addEventListener("focus", () => {
+        focusedCell = cell;
+      });
+      button.addEventListener("keydown", (event) => handleCellKeydown(cell, event));
+      button.addEventListener("dragover", (event) => {
+        if (!state.completed) {
+          event.preventDefault();
+        }
+      });
+      button.addEventListener("drop", (event) => handleCellDrop(cell, event));
     }
 
     if (state.checkedCells[cell] === "error") {
-      input.classList.add("is-error");
+      button.classList.add("is-error");
     }
 
     if (state.checkedCells[cell] === "correct") {
-      input.classList.add("is-correct");
+      button.classList.add("is-correct");
     }
 
-    board.appendChild(input);
+    if (value && !given) {
+      button.classList.add("has-value");
+    }
+
+    board.appendChild(button);
   }
 
   return board;
+}
+
+function renderNumberBank() {
+  const bank = document.createElement("div");
+
+  bank.className = "sudoku-number-bank";
+  bank.setAttribute("aria-label", "Siffror");
+
+  for (let number = 1; number <= 9; number += 1) {
+    const button = document.createElement("button");
+    const value = String(number);
+
+    button.type = "button";
+    button.className = "sudoku-number";
+    button.classList.toggle("is-selected", selectedNumber === value);
+    button.textContent = value;
+    button.draggable = !state.completed;
+    button.disabled = state.completed;
+    button.setAttribute("aria-pressed", selectedNumber === value ? "true" : "false");
+    button.addEventListener("click", () => {
+      if (suppressNextNumberClick) {
+        suppressNextNumberClick = false;
+        return;
+      }
+      selectNumber(value);
+    });
+    button.addEventListener("pointerdown", (event) => startNumberPointerDrag(value, event));
+    button.addEventListener("dragstart", (event) => {
+      selectedNumber = value;
+      event.dataTransfer.setData("text/plain", value);
+      event.dataTransfer.effectAllowed = "copy";
+    });
+
+    bank.appendChild(button);
+  }
+
+  const erase = document.createElement("button");
+  erase.type = "button";
+  erase.className = "sudoku-number sudoku-erase";
+  erase.textContent = "Radera";
+  erase.disabled = state.completed;
+  erase.addEventListener("click", () => {
+    selectedNumber = null;
+    if (focusedCell !== null) {
+      setCellValue(focusedCell, "");
+      return;
+    }
+    renderSudoku();
+    focusCell(focusedCell);
+  });
+  bank.appendChild(erase);
+
+  return bank;
 }
 
 function renderClues() {
@@ -174,8 +245,108 @@ function renderActions() {
   return actions;
 }
 
-function handleInput(cell, rawValue) {
-  const value = rawValue.replace(/[^1-9]/g, "").slice(0, 1);
+function selectNumber(value) {
+  selectedNumber = selectedNumber === value ? null : value;
+  renderSudoku();
+  focusCell(focusedCell);
+}
+
+function placeSelectedNumber(cell) {
+  focusedCell = cell;
+
+  if (!selectedNumber || state.completed) return;
+
+  setCellValue(cell, selectedNumber);
+}
+
+function handleCellDrop(cell, event) {
+  event.preventDefault();
+
+  if (state.completed) return;
+
+  const value = event.dataTransfer.getData("text/plain");
+
+  if (/^[1-9]$/.test(value)) {
+    selectedNumber = value;
+    setCellValue(cell, value);
+  }
+}
+
+function startNumberPointerDrag(value, event) {
+  if (state.completed || event.pointerType === "mouse") return;
+
+  pointerDrag = {
+    value,
+    startX: event.clientX,
+    startY: event.clientY,
+    moved: false,
+    ghost: null,
+  };
+
+  selectedNumber = value;
+  document.addEventListener("pointermove", handleNumberPointerMove, { passive: false });
+  document.addEventListener("pointerup", handleNumberPointerUp, { passive: false, once: true });
+  document.addEventListener("pointercancel", cancelNumberPointerDrag, { once: true });
+}
+
+function handleNumberPointerMove(event) {
+  if (!pointerDrag) return;
+
+  const distance = Math.hypot(event.clientX - pointerDrag.startX, event.clientY - pointerDrag.startY);
+
+  if (distance > 8) {
+    pointerDrag.moved = true;
+  }
+
+  if (!pointerDrag.moved) return;
+
+  event.preventDefault();
+
+  if (!pointerDrag.ghost) {
+    pointerDrag.ghost = document.createElement("div");
+    pointerDrag.ghost.className = "sudoku-drag-ghost";
+    pointerDrag.ghost.textContent = pointerDrag.value;
+    document.body.appendChild(pointerDrag.ghost);
+  }
+
+  pointerDrag.ghost.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
+}
+
+function handleNumberPointerUp(event) {
+  if (!pointerDrag) return;
+
+  if (pointerDrag.moved) {
+    event.preventDefault();
+    suppressNextNumberClick = true;
+
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".sudoku-cell");
+    const cells = [...document.querySelectorAll(".sudoku-cell")];
+    const cell = cells.indexOf(target);
+
+    if (cell >= 0) {
+      setCellValue(cell, pointerDrag.value);
+    }
+  }
+
+  cancelNumberPointerDrag();
+}
+
+function cancelNumberPointerDrag() {
+  if (pointerDrag?.ghost) {
+    pointerDrag.ghost.remove();
+  }
+
+  pointerDrag = null;
+  document.removeEventListener("pointermove", handleNumberPointerMove);
+  document.removeEventListener("pointerup", handleNumberPointerUp);
+  document.removeEventListener("pointercancel", cancelNumberPointerDrag);
+}
+
+function setCellValue(cell, rawValue) {
+  if (givenMap.has(cell) || state.completed) return;
+
+  focusedCell = cell;
+  const value = String(rawValue).replace(/[^1-9]/g, "").slice(0, 1);
 
   if (value) {
     state.entries[cell] = value;
@@ -199,10 +370,23 @@ function handleCellKeydown(cell, event) {
     ArrowDown: 9,
   }[event.key];
 
-  if (!direction) return;
+  if (direction) {
+    event.preventDefault();
+    focusCell(cell + direction);
+    return;
+  }
 
-  event.preventDefault();
-  focusCell(cell + direction);
+  if (/^[1-9]$/.test(event.key)) {
+    event.preventDefault();
+    selectedNumber = event.key;
+    setCellValue(cell, event.key);
+    return;
+  }
+
+  if (event.key === "Backspace" || event.key === "Delete") {
+    event.preventDefault();
+    setCellValue(cell, "");
+  }
 }
 
 function focusCell(cell) {
