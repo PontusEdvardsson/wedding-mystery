@@ -104,7 +104,7 @@ const mysterySteps = [
         { cell: 39, value: "8", clue: "Platshållare: byt till en ledtråd som ger siffran 8." },
         { cell: 41, value: "3", clue: "Platshållare: byt till en ledtråd som ger siffran 3." },
         { cell: 44, value: "1", clue: "Platshållare: byt till en ledtråd som ger siffran 1." },
-        { cell: 45, value: "7", clue: "Platshållare: byt till en ledtråd som ger siffran 7." },
+        { cell: 45, value: "7", clue: "Antal sjösjuka sjömän som var ute på sjön." },
         { cell: 49, value: "2", clue: "Platshållare: byt till en ledtråd som ger siffran 2." },
         { cell: 53, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
         { cell: 55, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
