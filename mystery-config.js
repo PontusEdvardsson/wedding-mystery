@@ -100,7 +100,7 @@ const mysterySteps = [
         { cell: 27, value: "8", clue: "En spindel har så här många ben." },
         { cell: 31, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
         { cell: 35, value: "3", clue: "Platshållare: byt till en ledtråd som ger siffran 3." },
-        { cell: 36, value: "4", clue: "Platshållare: byt till en ledtråd som ger siffran 4." },
+        { cell: 36, value: "4", clue: "Pater Noster + A (Fråga en bohuslänning)." },
         { cell: 39, value: "8", clue: "Platshållare: byt till en ledtråd som ger siffran 8." },
         { cell: 41, value: "3", clue: "Platshållare: byt till en ledtråd som ger siffran 3." },
         { cell: 44, value: "1", clue: "Platshållare: byt till en ledtråd som ger siffran 1." },
