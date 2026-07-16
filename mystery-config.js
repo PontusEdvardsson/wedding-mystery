@@ -107,7 +107,7 @@ const mysterySteps = [
         { cell: 45, value: "7", clue: "Antal sjösjuka sjömän som var ute på sjön." },
         { cell: 49, value: "2", clue: "Platshållare: byt till en ledtråd som ger siffran 2." },
         { cell: 53, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
-        { cell: 55, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
+        { cell: 55, value: "6", clue: "Vi har lyssnat på prästen prata om Gud, men 3 st av denna siffra är förknippad med en arg grabb med hovar och treudd." },
         { cell: 60, value: "2", clue: "Platshållare: byt till en ledtråd som ger siffran 2." },
         { cell: 61, value: "8", clue: "Platshållare: byt till en ledtråd som ger siffran 8." },
         { cell: 66, value: "4", clue: "Platshållare: byt till en ledtråd som ger siffran 4." },
