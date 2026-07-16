@@ -121,13 +121,6 @@ const mysterySteps = [
       clues: [],
     },
   },
-  {
-    id: "final",
-    page: "final.html",
-    title: "Final",
-    unlockAt: null,
-    requires: "uppdrag-4",
-  },
 ];
 
 const mysteryStorageKeys = {

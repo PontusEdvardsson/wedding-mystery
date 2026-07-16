@@ -1,14 +1,15 @@
 const action = document.querySelector("[data-primary-action]");
 const chapterList = document.querySelector("[data-chapter-list]");
 const homeCountdown = document.querySelector("[data-home-countdown]");
-const playableSteps = mysterySteps.filter((step) => step.id !== "final");
+const homeCountdownLabel = document.querySelector("[data-home-countdown-label]");
+const playableSteps = mysterySteps;
 const started = Boolean(Mystery.readProgress().startedAt);
 const allDone = playableSteps.every((step) => Mystery.isComplete(step.id));
 
 if (action) {
   action.href = Mystery.linkTo(Mystery.getBestResumePage());
   action.textContent = allDone
-    ? "Återvänd till finalen"
+    ? "Visa mina lösningar"
     : started
       ? "Fortsätt mysteriet"
       : "Börja mysteriet";
@@ -61,8 +62,15 @@ function updateHomeCountdown() {
   );
 
   if (!nextHintStep) {
+    if (homeCountdownLabel) {
+      homeCountdownLabel.hidden = true;
+    }
     homeCountdown.innerHTML = `<span class="countdown-ready">Alla ledtrådar väntar</span>`;
     return;
+  }
+
+  if (homeCountdownLabel) {
+    homeCountdownLabel.hidden = false;
   }
 
   const hintDate = new Date(nextHintStep.hintUnlockAt);

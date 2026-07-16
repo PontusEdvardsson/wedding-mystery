@@ -98,10 +98,7 @@ const Mystery = (() => {
   }
 
   function canOpenStep(step, now = new Date()) {
-    const requirementMet =
-      step.id === "final"
-        ? mysterySteps.filter((item) => item.id !== "final").every((item) => isComplete(item.id))
-        : !step.requires || isComplete(step.requires);
+    const requirementMet = !step.requires || isComplete(step.requires);
     return {
       requirementMet,
       timeUnlocked: isTimeUnlocked(step, now),
@@ -181,7 +178,7 @@ const Mystery = (() => {
   }
 
   function updateProgressSummary() {
-    const playableSteps = mysterySteps.filter((step) => step.id !== "final");
+    const playableSteps = mysterySteps;
     const completeCount = playableSteps.filter((step) => isComplete(step.id)).length;
     const progressLabel = document.querySelector("[data-progress-label]");
     const progressBar = document.querySelector("[data-progress-bar]");
@@ -289,7 +286,7 @@ const Mystery = (() => {
 
     if (!container || !nextStep) return;
 
-    const label = nextStep.id === "final" ? "Gå vidare till finalen" : "Gå vidare till nästa ledtråd";
+    const label = "Gå vidare till nästa ledtråd";
     container.innerHTML = `
       <a class="primary-action next-action" href="${linkTo(nextStep.page)}">
         ${label}
@@ -299,7 +296,6 @@ const Mystery = (() => {
 
   function getStepLabel(step) {
     const index = getStepIndex(step.id);
-    if (step.id === "final") return "Final";
     return `Uppdrag ${index + 1}`;
   }
 
@@ -334,10 +330,10 @@ const Mystery = (() => {
 
   function getBestResumePage() {
     const progress = readProgress();
-    const allPlayable = mysterySteps.filter((step) => step.id !== "final");
+    const allPlayable = mysterySteps;
 
     if (allPlayable.every((step) => isComplete(step.id))) {
-      return "final.html";
+      return allPlayable.at(-1)?.page || "uppdrag-1.html";
     }
 
     const firstIncomplete = allPlayable.find((step) => !isComplete(step.id));

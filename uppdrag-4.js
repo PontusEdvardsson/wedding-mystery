@@ -78,9 +78,12 @@ function renderSudoku() {
   if (state.completed) {
     const success = document.createElement("div");
     const nextAction = document.createElement("div");
+    const nextStep = Mystery.getNextStep(step.id);
 
     success.className = "sudoku-success";
-    success.innerHTML = `<strong>Korrekt.</strong><span>Nästa ledtråd väntar.</span>`;
+    success.innerHTML = nextStep
+      ? `<strong>Korrekt.</strong><span>Nästa ledtråd väntar.</span>`
+      : `<strong>Korrekt.</strong>`;
     Mystery.renderNextAction(step.id, nextAction);
     success.appendChild(nextAction);
     wrapper.appendChild(success);

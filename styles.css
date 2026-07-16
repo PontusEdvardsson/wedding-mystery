@@ -185,9 +185,17 @@ h1 {
 }
 
 .countdown-ready {
-  display: block;
-  padding: clamp(26px, 8vw, 64px) 0;
-  font-size: clamp(2.6rem, 12vw, 6rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(86px, 18vw, 128px);
+  padding: 0 clamp(18px, 6vw, 42px);
+  border: 1px solid rgba(212, 168, 79, 0.32);
+  border-radius: 10px;
+  color: var(--ink);
+  background: rgba(13, 16, 22, 0.52);
+  font-size: clamp(1.65rem, 6vw, 3.15rem);
+  line-height: 1.05;
 }
 
 .progress-wrap {
