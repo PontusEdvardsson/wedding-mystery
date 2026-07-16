@@ -242,17 +242,38 @@ h1 {
 
 .chapter-item {
   min-height: 58px;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(13, 16, 22, 0.72);
+  overflow: hidden;
 }
 
-.chapter-item span {
+.chapter-link,
+.chapter-item.is-static {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.chapter-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.chapter-link:hover {
+  background: rgba(88, 199, 173, 0.08);
+}
+
+.chapter-link:focus-visible {
+  outline: 3px solid rgba(111, 157, 247, 0.48);
+  outline-offset: -3px;
+}
+
+.chapter-item span,
+.chapter-link span {
   width: 34px;
   height: 34px;
   display: grid;
@@ -268,6 +289,12 @@ h1 {
   color: var(--muted);
   font-size: 0.84rem;
   font-style: normal;
+}
+
+.chapter-item strong {
+  color: var(--pine);
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .primary-action,

@@ -26,12 +26,27 @@ if (chapterList) {
       const stepNumber = playableSteps.findIndex((candidate) => candidate.id === step.id) + 1;
       const isComplete = Mystery.isComplete(step.id);
       const isAvailable = Mystery.canOpenStep(step).canOpen;
+      const canNavigate = isComplete || isAvailable;
+      const status = isComplete ? "Klar" : isAvailable ? "Tillgänglig" : "Låst";
+      const content = `
+        <span>${stepNumber}</span>
+        <em>${status}</em>
+        ${canNavigate ? '<strong aria-hidden="true">›</strong>' : ""}
+      `;
 
       item.className = "chapter-item";
-      item.innerHTML = `
-        <span>${stepNumber}</span>
-        <em>${isComplete ? "Klar" : isAvailable ? "Tillgänglig" : "Låst"}</em>
-      `;
+
+      if (canNavigate) {
+        const link = document.createElement("a");
+        link.className = "chapter-link";
+        link.href = Mystery.linkTo(step.page);
+        link.setAttribute("aria-label", `${status}: uppdrag ${stepNumber}`);
+        link.innerHTML = content;
+        item.appendChild(link);
+      } else {
+        item.classList.add("is-static");
+        item.innerHTML = content;
+      }
 
       return item;
     })
