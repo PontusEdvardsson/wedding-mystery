@@ -97,7 +97,7 @@ const mysterySteps = [
         { cell: 19, value: "9", clue: "Platshållare: byt till en ledtråd som ger siffran 9." },
         { cell: 20, value: "8", clue: "Platshållare: byt till en ledtråd som ger siffran 8." },
         { cell: 25, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
-        { cell: 27, value: "8", clue: "Platshållare: byt till en ledtråd som ger siffran 8." },
+        { cell: 27, value: "8", clue: "En spindel har så här många ben." },
         { cell: 31, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
         { cell: 35, value: "3", clue: "Platshållare: byt till en ledtråd som ger siffran 3." },
         { cell: 36, value: "4", clue: "Platshållare: byt till en ledtråd som ger siffran 4." },
