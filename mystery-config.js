@@ -91,7 +91,7 @@ const mysterySteps = [
         { cell: 1, value: "3", clue: "Entalssiffran i π." },
         { cell: 4, value: "7", clue: "Platshållare: byt till en ledtråd som ger siffran 7." },
         { cell: 9, value: "6", clue: "Förknippad med att skaffa barn." },
-        { cell: 12, value: "1", clue: "Platshållare: byt till en ledtråd som ger siffran 1." },
+        { cell: 12, value: "1", clue: "Antal syskon brudgummen har." },
         { cell: 13, value: "9", clue: "Platshållare: byt till en ledtråd som ger siffran 9." },
         { cell: 14, value: "5", clue: "Platshållare: byt till en ledtråd som ger siffran 5." },
         { cell: 19, value: "9", clue: "Största entalssiffran." },
