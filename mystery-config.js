@@ -87,7 +87,7 @@ const mysterySteps = [
       type: "sudoku",
       solution: "534678912672195348198342567859761423426853791713924856961537284287419635345286179",
       givens: [
-        { cell: 0, value: "5", clue: "Platshållare: byt till en ledtråd som ger siffran 5." },
+        { cell: 0, value: "5", clue: "Antal spelare i ett lag i Pontus favoritspel League of Legends." },
         { cell: 1, value: "3", clue: "Platshållare: byt till en ledtråd som ger siffran 3." },
         { cell: 4, value: "7", clue: "Platshållare: byt till en ledtråd som ger siffran 7." },
         { cell: 9, value: "6", clue: "Platshållare: byt till en ledtråd som ger siffran 6." },
