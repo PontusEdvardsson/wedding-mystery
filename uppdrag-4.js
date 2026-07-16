@@ -144,7 +144,6 @@ function renderBoard() {
         button.addEventListener("drop", (event) => handleCellDrop(cell, event));
       }
     } else {
-      button.addEventListener("click", () => placeSelectedNumber(cell));
       button.addEventListener("focus", () => {
         focusedCell = cell;
       });
@@ -385,14 +384,6 @@ function selectNumber(value) {
   selectedNumber = selectedNumber === value ? null : value;
   renderSudoku();
   focusCell(focusedCell);
-}
-
-function placeSelectedNumber(cell) {
-  focusedCell = cell;
-
-  if (!selectedNumber || state.completed) return;
-
-  setCellValue(cell, selectedNumber);
 }
 
 function handleCellDrop(cell, event) {
