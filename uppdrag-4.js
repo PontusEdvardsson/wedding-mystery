@@ -619,6 +619,7 @@ function renderTestTools() {
   container.innerHTML = `
     <p>Testverktyg – visas endast i preview-läge</p>
     <button class="secondary-action button-action" type="button" data-test-solve>Fyll i lösning</button>
+    <button class="secondary-action button-action" type="button" data-test-finish>Lös hela sudoku</button>
     <button class="secondary-action button-action" type="button" data-test-complete>Markera uppdraget som löst</button>
     <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast uppdrag 4</button>
   `;
@@ -638,6 +639,13 @@ function renderTestTools() {
     renderSudoku();
   });
 
+  container.querySelector("[data-test-finish]").addEventListener("click", () => {
+    fillSudokuSolution();
+    completeMission();
+    saveState();
+    renderSudoku();
+  });
+
   container.querySelector("[data-test-complete]").addEventListener("click", () => {
     completeMission();
     saveState();
@@ -653,6 +661,21 @@ function renderTestTools() {
     }
     window.location.href = Mystery.linkTo("uppdrag-4.html");
   });
+}
+
+function fillSudokuSolution() {
+  state.givensRevealed = true;
+  state.givenEntries = {};
+
+  for (let cell = 0; cell < 81; cell += 1) {
+    if (!givenMap.has(cell)) {
+      state.entries[cell] = puzzle.solution[cell];
+    }
+  }
+
+  state.checkedCells = {};
+  state.message = "Korrekt.";
+  state.messageTone = "success";
 }
 
 function scrollResultIntoView() {
