@@ -11,33 +11,10 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="mystery-board intro-board" aria-labelledby="page-title">
-        <div class="board-head">
-          <div>
-            <p class="eyebrow">QR-mysterium</p>
-            <h1 id="page-title">Bröllopsmysteriet</h1>
-          </div>
-          <div class="time-box" aria-live="polite">
-            <span>Nu</span>
-            <strong data-current-time>--:--</strong>
-          </div>
-        </div>
-
-        <div class="intro-copy">
-          <p>
-            Ett namn är gömt, men det är bara början. Lös uppdragen i ordning
-            och låt kvällen öppna nästa ledtråd när tiden är inne.
-          </p>
-        </div>
-
-        <div class="progress-wrap">
-          <div class="progress-meta">
-            <span data-progress-label>0 av 0 steg klara</span>
-            <span data-next-unlock>Nästa ledtråd laddas...</span>
-          </div>
-          <div class="progress-track" aria-hidden="true">
-            <div class="progress-bar" data-progress-bar></div>
-          </div>
+      <section class="mystery-board intro-board" aria-label="Bröllopsmysteriet">
+        <div class="start-countdown" aria-live="polite">
+          <span class="start-countdown-label">Nästa ledtråd om</span>
+          <div class="start-countdown-grid" data-home-countdown></div>
         </div>
 
         <ol class="chapter-list" data-chapter-list></ol>

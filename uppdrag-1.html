@@ -11,12 +11,8 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="mystery-board mission-board" aria-labelledby="page-title">
-        <div class="board-head">
-          <div>
-            <p class="eyebrow">Uppdrag 1</p>
-            <h1 id="page-title">Ordlåset</h1>
-          </div>
+      <section class="mystery-board mission-board" aria-label="Ordlåset">
+        <div class="board-head board-head-quiet">
           <div class="time-box" aria-live="polite">
             <span>Nu</span>
             <strong data-current-time>--:--</strong>
@@ -26,11 +22,6 @@
         <div data-gate></div>
 
         <div class="mission-content" data-mission-content hidden>
-          <div class="clue-row">
-            <span class="clue-mark" aria-hidden="true"></span>
-            <p class="clue-text">Lös det fem bokstäver långa ordet för att komma vidare.</p>
-          </div>
-
           <div data-wordle-root></div>
           <div data-next-action></div>
           <a class="secondary-action home-action" href="index.html">Till mysteriets startsida</a>

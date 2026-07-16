@@ -2,6 +2,7 @@ const step = Mystery.getStep("uppdrag-2");
 const puzzle = step.puzzle;
 const root = document.querySelector("[data-connections-root]");
 let cooldownTimer = null;
+let hintWasUnlocked = Mystery.isHintUnlocked(step);
 
 const state = normalizeState(
   JSON.parse(localStorage.getItem(mysteryStorageKeys.connections) || "null")
@@ -74,7 +75,7 @@ function renderConnections() {
 
   const game = document.createElement("div");
   game.className = "connections";
-  game.append(renderSolvedGroups(), renderStatusPanel(), renderGrid(), renderActions());
+  game.append(renderTimedHint(), renderSolvedGroups(), renderStatusPanel(), renderGrid(), renderActions());
 
   if (state.completed) {
     const success = document.createElement("div");
@@ -83,7 +84,7 @@ function renderConnections() {
     success.className = "connections-success";
     success.innerHTML = `
       <strong>Alla trådar är funna.</strong>
-      <span>Ni har hittat de fyra sambanden. Nästa ledtråd väntar.</span>
+      <span>Nästa ledtråd väntar.</span>
     `;
     Mystery.renderNextAction(step.id, nextAction);
     game.append(success, nextAction);
@@ -99,6 +100,19 @@ function renderConnections() {
       saveState();
     }, 700);
   }
+}
+
+function renderTimedHint() {
+  const hint = document.createElement("p");
+  hint.className = "timed-hint";
+
+  if (!Mystery.isHintUnlocked(step)) {
+    hint.hidden = true;
+    return hint;
+  }
+
+  hint.textContent = step.hintText;
+  return hint;
 }
 
 function renderSolvedGroups() {
@@ -415,3 +429,10 @@ function scrollResultIntoView() {
     behavior: prefersReducedMotion ? "auto" : "smooth",
   });
 }
+
+setInterval(() => {
+  if (!state.completed && !hintWasUnlocked && Mystery.isHintUnlocked(step)) {
+    hintWasUnlocked = true;
+    renderConnections();
+  }
+}, 30000);

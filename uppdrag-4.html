@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Final | Bröllopsmysteriet</title>
+    <title>Förseglat kapitel | Bröllopsmysteriet</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="mystery-config.js" defer></script>
     <script src="shared.js" defer></script>
-    <script src="final.js" defer></script>
+    <script src="uppdrag-placeholder.js" defer></script>
   </head>
-  <body>
+  <body data-step-id="uppdrag-4">
     <main class="app-shell">
-      <section class="mystery-board mission-board" aria-label="Final">
+      <section class="mystery-board mission-board" aria-label="Förseglat kapitel">
         <div class="board-head board-head-quiet">
           <div class="time-box" aria-live="polite">
             <span>Nu</span>
@@ -21,8 +21,14 @@
 
         <div data-gate></div>
 
-        <div class="mission-content final-content" data-mission-content hidden>
-          <p>Finalen är redo att fyllas med den sista avslöjande ledtråden.</p>
+        <div class="mission-content" data-mission-content hidden>
+          <div class="placeholder-panel">
+            <p data-placeholder-clue></p>
+            <p data-placeholder-answer></p>
+            <div data-test-tools></div>
+          </div>
+
+          <div data-next-action></div>
           <a class="secondary-action home-action" href="index.html">Till mysteriets startsida</a>
         </div>
       </section>

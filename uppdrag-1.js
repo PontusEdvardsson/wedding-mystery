@@ -5,6 +5,7 @@ const savedWordle = JSON.parse(localStorage.getItem(mysteryStorageKeys.wordle) |
 
 const wordleState = normalizeWordleState(savedWordle);
 const wordleRoot = document.querySelector("[data-wordle-root]");
+let hintWasUnlocked = Mystery.isHintUnlocked(step);
 
 Mystery.renderGate("uppdrag-1", {
   onOpen() {
@@ -51,6 +52,14 @@ function renderWordle() {
 
   wrapper.className = "wordle";
   wrapper.addEventListener("pointerdown", () => focusNativeInput());
+
+  if (!wordleState.solved && Mystery.isHintUnlocked(step)) {
+    const prompt = document.createElement("p");
+    prompt.className = "wordle-prompt";
+    prompt.textContent = step.hintText;
+    wrapper.appendChild(prompt);
+  }
+
   board.className = "wordle-board";
   board.setAttribute("aria-label", "Ordlås");
 
@@ -129,10 +138,10 @@ function renderSolvedMessage() {
   const nextStep = Mystery.getNextStep(step.id);
 
   container.className = "solved-message";
-  firstLine.textContent = "Det första namnet är funnet.";
+  firstLine.textContent = "Första låset är öppnat.";
   secondLine.textContent = Mystery.isTimeUnlocked(nextStep)
     ? "Nästa ledtråd väntar."
-    : "Men ett bröllop består inte av en person. Jakten fortsätter när nästa ledtråd anländer.";
+    : "Jakten fortsätter när nästa ledtråd anländer.";
 
   container.append(firstLine, secondLine);
   return container;
@@ -364,3 +373,10 @@ document.addEventListener("keydown", (event) => {
     handleWordleInput(key);
   }
 });
+
+setInterval(() => {
+  if (!wordleState.solved && !hintWasUnlocked && Mystery.isHintUnlocked(step)) {
+    hintWasUnlocked = true;
+    renderWordle();
+  }
+}, 30000);

@@ -49,6 +49,7 @@ button {
 }
 
 .mystery-board {
+  position: relative;
   width: min(760px, 100%);
   min-height: min(760px, calc(100vh - 20px));
   padding: clamp(16px, 4vw, 28px);
@@ -70,6 +71,11 @@ button {
   justify-content: space-between;
   gap: 14px;
   margin-bottom: 20px;
+}
+
+.board-head-quiet {
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 
 .eyebrow {
@@ -106,6 +112,82 @@ h1 {
 .time-box strong {
   display: block;
   font-size: 1.35rem;
+}
+
+.start-countdown {
+  display: grid;
+  justify-items: center;
+  gap: clamp(14px, 4vw, 24px);
+  margin: clamp(52px, 10vw, 82px) auto clamp(28px, 7vw, 58px);
+  text-align: center;
+}
+
+.start-countdown-label {
+  position: relative;
+  color: var(--muted);
+  font-size: clamp(0.86rem, 2.8vw, 1.05rem);
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.start-countdown-label::before,
+.start-countdown-label::after {
+  content: "";
+  width: clamp(28px, 10vw, 72px);
+  height: 1px;
+  position: absolute;
+  top: 50%;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 79, 0.7));
+}
+
+.start-countdown-label::before {
+  right: calc(100% + 14px);
+}
+
+.start-countdown-label::after {
+  left: calc(100% + 14px);
+  transform: rotate(180deg);
+}
+
+.start-countdown-grid {
+  width: min(100%, 620px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 14px);
+}
+
+.countdown-unit {
+  min-height: clamp(92px, 20vw, 142px);
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  padding: clamp(10px, 2.8vw, 18px) 6px;
+  border: 1px solid rgba(212, 168, 79, 0.22);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(212, 168, 79, 0.16), transparent 58%),
+    rgba(13, 16, 22, 0.72);
+}
+
+.countdown-unit strong,
+.countdown-ready {
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.1rem, 9vw, 4.9rem);
+  line-height: 0.95;
+}
+
+.countdown-unit em {
+  color: var(--muted);
+  font-size: clamp(0.7rem, 2.5vw, 0.86rem);
+  font-style: normal;
+  font-weight: 850;
+}
+
+.countdown-ready {
+  display: block;
+  padding: clamp(26px, 8vw, 64px) 0;
+  font-size: clamp(2.6rem, 12vw, 6rem);
 }
 
 .progress-wrap {
@@ -161,7 +243,7 @@ h1 {
 .chapter-item {
   min-height: 58px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-columns: 34px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
@@ -181,11 +263,8 @@ h1 {
   background: var(--pine);
 }
 
-.chapter-item strong {
-  overflow-wrap: anywhere;
-}
-
 .chapter-item em {
+  justify-self: end;
   color: var(--muted);
   font-size: 0.84rem;
   font-style: normal;
@@ -234,8 +313,9 @@ h1 {
 }
 
 .reset-action {
-  justify-self: end;
-  margin-top: 18px;
+  position: absolute;
+  top: 12px;
+  left: 12px;
   padding: 7px 9px;
   border: 1px solid rgba(169, 159, 147, 0.25);
   border-radius: 8px;
@@ -503,6 +583,28 @@ h1 {
   margin-top: 16px;
 }
 
+.wordle-prompt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.timed-hint {
+  width: fit-content;
+  justify-self: center;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(212, 168, 79, 0.35);
+  border-radius: 8px;
+  color: var(--gold);
+  background: rgba(212, 168, 79, 0.08);
+  font-size: 0.92rem;
+  font-weight: 850;
+  text-align: center;
+}
+
 .wordle-board {
   width: min(100%, 320px);
   max-height: 395px;
@@ -761,6 +863,97 @@ h1 {
   font-size: 1.1rem;
 }
 
+.cipher-instruction {
+  max-width: 34rem;
+  justify-self: center;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  text-align: center;
+}
+
+.cipher {
+  display: grid;
+  gap: clamp(18px, 5vw, 34px);
+  justify-items: center;
+  padding: clamp(14px, 5vw, 32px) 0;
+}
+
+.cipher-text {
+  width: min(100%, 620px);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.1rem, 11vw, 5.4rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.cipher-form {
+  width: min(100%, 360px);
+  display: grid;
+  gap: 10px;
+}
+
+.cipher-form.shake {
+  animation: shake-row 180ms linear 0s 2;
+}
+
+.cipher-input {
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #0d1016;
+  font-size: 16px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.cipher-form.shake .cipher-input {
+  border-color: rgba(216, 111, 141, 0.78);
+  box-shadow: 0 0 0 3px rgba(216, 111, 141, 0.12);
+}
+
+.cipher-input:focus {
+  outline: 3px solid rgba(111, 157, 247, 0.48);
+  outline-offset: 2px;
+}
+
+.cipher-message {
+  min-height: 24px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  text-align: center;
+}
+
+.cipher-message[data-tone="error"] {
+  color: #f0a8b8;
+}
+
+.cipher-success {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  animation: action-rise 520ms ease both;
+}
+
+.cipher-success strong {
+  color: var(--ink);
+  font-size: 1.35rem;
+}
+
+.cipher-success span {
+  color: var(--muted);
+}
+
 .keyboard {
   width: min(100%, 430px);
   display: grid;
@@ -903,12 +1096,8 @@ h1 {
     padding-left: 12px;
   }
 
-  .chapter-item {
-    grid-template-columns: 34px minmax(0, 1fr);
-  }
-
-  .chapter-item em {
-    grid-column: 2;
+  .start-countdown-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .wordle-board {
@@ -930,6 +1119,10 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .cipher-text {
+    font-size: clamp(1.85rem, 12vw, 3rem);
+  }
+
   .wordle-board {
     max-height: 342px;
   }
@@ -947,7 +1140,9 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .connection-card,
   .connections-success,
+  .cipher-success,
   .next-action,
+  .cipher-form.shake,
   .wordle-row.shake,
   .wordle-row.solved-flip .wordle-tile {
     animation: none;

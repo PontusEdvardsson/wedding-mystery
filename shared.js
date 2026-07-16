@@ -93,6 +93,10 @@ const Mystery = (() => {
     return isPreview() || !step.unlockAt || now >= new Date(step.unlockAt);
   }
 
+  function isHintUnlocked(step, now = new Date()) {
+    return isPreview() || !step.hintUnlockAt || now >= new Date(step.hintUnlockAt);
+  }
+
   function canOpenStep(step, now = new Date()) {
     const requirementMet =
       step.id === "final"
@@ -350,6 +354,7 @@ const Mystery = (() => {
     getStep,
     isComplete,
     isPreview,
+    isHintUnlocked,
     isTimeUnlocked,
     linkTo,
     resetLink,

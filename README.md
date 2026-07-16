@@ -8,7 +8,9 @@ En statisk QR-sida för ett interaktivt bröllopsmysterium i dark mode.
 - `uppdrag-1.html`: Wordle-låset med lösningen `SARRI`.
 - `uppdrag-2.html`: Trådarna mellan oss, ett Connections-inspirerat ordpussel.
 - `uppdrag-2.js`: Connections-inspirerat pussel för uppdrag 2.
-- `uppdrag-3.html`: platshållare för tredje mysteriet.
+- `uppdrag-3.html`: Namnen bakom mysteriet, ett A1Z26-chiffer.
+- `uppdrag-3.js`: chifferlogiken för uppdrag 3.
+- `uppdrag-4.html`: platshållare för nästa uppdrag.
 - `final.html`: platshållare för finalen.
 - `mystery-config.js`: uppdragens ordning, länkar, tider, krav och texter.
 - `shared.js`: gemensam progression, låsning, countdown, preview och reset.
@@ -31,6 +33,14 @@ Pusslets ord och kategorier ligger i `mystery-config.js` under
 
 Connections-data sparas i `weddingMystery.connections.uppdrag-2`, inklusive
 slumpad ordning, lösta grupper, felräknare och eventuell cooldown.
+
+## Uppdrag 3
+
+Chiffer, avkodad relation och godkända svar ligger i `mystery-config.js` under
+`mysterySteps` för `uppdrag-3`, i `puzzle`.
+
+Chifferdata sparas i `weddingMystery.cipher.uppdrag-3`, inklusive om uppdraget
+är löst och den avkodade sluttexten.
 
 ## Lägga till uppdrag
 
