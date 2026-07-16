@@ -80,7 +80,7 @@ function renderSudoku() {
     const nextAction = document.createElement("div");
 
     success.className = "sudoku-success";
-    success.innerHTML = `<strong>Rätt.</strong><span>Nästa ledtråd väntar.</span>`;
+    success.innerHTML = `<strong>Korrekt.</strong><span>Nästa ledtråd väntar.</span>`;
     Mystery.renderNextAction(step.id, nextAction);
     success.appendChild(nextAction);
     wrapper.appendChild(success);
@@ -142,6 +142,8 @@ function renderBoard() {
           }
         });
         button.addEventListener("drop", (event) => handleCellDrop(cell, event));
+      } else {
+        button.classList.add("is-revealed-given");
       }
     } else {
       button.addEventListener("focus", () => {
@@ -156,16 +158,12 @@ function renderBoard() {
       button.addEventListener("drop", (event) => handleCellDrop(cell, event));
     }
 
-    if (state.checkedCells[cell] === "error") {
-      button.classList.add("is-error");
-    }
-
-    if (state.checkedCells[cell] === "correct") {
-      button.classList.add("is-correct");
-    }
-
     if (value && value !== "?") {
       button.classList.add("has-value");
+    }
+
+    if (selectedNumber && value === selectedNumber) {
+      button.classList.add("is-same-number");
     }
 
     board.appendChild(button);
@@ -532,7 +530,6 @@ function focusCell(cell, options = {}) {
 }
 
 function checkSudoku() {
-  const checkedCells = {};
   let hasEmpty = false;
   let hasError = false;
 
@@ -548,23 +545,21 @@ function checkSudoku() {
       continue;
     }
 
-    if (value === puzzle.solution[cell]) {
-      checkedCells[cell] = "correct";
-    } else {
-      checkedCells[cell] = "error";
+    if (value !== puzzle.solution[cell]) {
       hasError = true;
     }
   }
 
-  state.checkedCells = checkedCells;
+  state.checkedCells = {};
 
   if (hasError) {
-    state.message = "Något stämmer inte än.";
+    state.message = "Ej korrekt.";
     state.messageTone = "error";
   } else if (hasEmpty) {
     state.message = "Fyll i alla rutor först.";
     state.messageTone = "neutral";
   } else {
+    state.message = "Korrekt.";
     completeMission();
   }
 
@@ -605,7 +600,6 @@ function resetSudoku() {
 
 function completeMission() {
   state.completed = true;
-  state.message = "";
   state.messageTone = "success";
   state.justCompleted = true;
   Mystery.markComplete(step.id);

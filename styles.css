@@ -1026,8 +1026,11 @@ h1 {
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
-  border: 2px solid rgba(246, 239, 228, 0.78);
-  background: rgba(246, 239, 228, 0.78);
+  border: 2px solid #3a404c;
+  border-radius: 7px;
+  background: #2a2f3a;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.26);
+  overflow: hidden;
 }
 
 .sudoku-cell {
@@ -1036,11 +1039,11 @@ h1 {
   width: 100%;
   height: 100%;
   border: 0;
-  border-right: 1px solid rgba(246, 239, 228, 0.32);
-  border-bottom: 1px solid rgba(246, 239, 228, 0.32);
+  border-right: 1px solid #2a2f3a;
+  border-bottom: 1px solid #2a2f3a;
   border-radius: 0;
-  color: var(--ink);
-  background: #111720;
+  color: #e6e7eb;
+  background: #1a1d23;
   font-size: clamp(1rem, 5vw, 2rem);
   font-weight: 900;
   text-align: center;
@@ -1055,18 +1058,23 @@ h1 {
 }
 
 .sudoku-cell.has-value {
-  background: rgba(88, 199, 173, 0.16);
+  color: #e6e7eb;
+  background: #3a404c;
+}
+
+.sudoku-cell:not(:disabled):hover {
+  background: #232833;
 }
 
 .sudoku-cell:nth-child(3n) {
   border-right-width: 2px;
-  border-right-color: rgba(246, 239, 228, 0.78);
+  border-right-color: #3a404c;
 }
 
 .sudoku-cell:nth-child(n + 19):nth-child(-n + 27),
 .sudoku-cell:nth-child(n + 46):nth-child(-n + 54) {
   border-bottom-width: 2px;
-  border-bottom-color: rgba(246, 239, 228, 0.78);
+  border-bottom-color: #3a404c;
 }
 
 .sudoku-cell:nth-child(9n) {
@@ -1078,8 +1086,8 @@ h1 {
 }
 
 .sudoku-cell.is-given {
-  color: #08100d;
-  background: var(--gold);
+  color: #e6e7eb;
+  background: #1a1d23;
   opacity: 1;
 }
 
@@ -1089,12 +1097,30 @@ h1 {
 }
 
 .sudoku-cell.is-clue[aria-expanded="true"] {
-  background: linear-gradient(135deg, var(--gold), var(--pine));
+  color: #e6e7eb;
+  background: #3a404c;
+  outline: 2px solid #daaf37;
+  outline-offset: -2px;
+}
+
+.sudoku-cell.is-clue.has-value {
+  color: #e6e7eb;
+  background: #3a404c;
+}
+
+.sudoku-cell.is-revealed-given {
+  color: #e6e7eb;
+  background: #3a404c;
+}
+
+.sudoku-cell.is-same-number {
+  color: #f4d77d;
+  background: rgba(45, 36, 17, 0.72);
 }
 
 .sudoku-cell.is-error {
-  color: #fff;
-  background: rgba(216, 111, 141, 0.45);
+  color: #ffb6b6;
+  background: #4a2626;
 }
 
 .sudoku-cell.is-correct {
@@ -1104,8 +1130,8 @@ h1 {
 .sudoku-cell:focus {
   position: relative;
   z-index: 1;
-  outline: 3px solid rgba(111, 157, 247, 0.7);
-  outline-offset: -3px;
+  outline: 2px solid #daaf37;
+  outline-offset: -2px;
 }
 
 .sudoku-number-bank {
@@ -1119,10 +1145,10 @@ h1 {
 .sudoku-number {
   min-width: 0;
   min-height: 44px;
-  border: 1px solid rgba(246, 239, 228, 0.18);
+  border: 1px solid #3a404c;
   border-radius: 8px;
-  color: var(--ink);
-  background: rgba(13, 16, 22, 0.82);
+  color: #e6e7eb;
+  background: #1a1d23;
   font: inherit;
   font-size: 1.05rem;
   font-weight: 900;
@@ -1136,9 +1162,9 @@ h1 {
 }
 
 .sudoku-number.is-selected {
-  color: #07100d;
-  border-color: rgba(88, 199, 173, 0.85);
-  background: linear-gradient(135deg, var(--gold), var(--pine));
+  color: #0f1115;
+  border-color: #daaf37;
+  background: #daaf37;
 }
 
 .sudoku-number:disabled {
@@ -1164,10 +1190,10 @@ h1 {
   height: 48px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(88, 199, 173, 0.85);
+  border: 1px solid #daaf37;
   border-radius: 999px;
-  color: #07100d;
-  background: linear-gradient(135deg, var(--gold), var(--pine));
+  color: #0f1115;
+  background: #daaf37;
   font-weight: 900;
   pointer-events: none;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
