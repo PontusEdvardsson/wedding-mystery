@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Final | Bröllopsmysteriet</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="mystery-config.js" defer></script>
+    <script src="shared.js" defer></script>
+    <script src="final.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="mystery-board mission-board" aria-labelledby="page-title">
+        <div class="board-head">
+          <div>
+            <p class="eyebrow">Final</p>
+            <h1 id="page-title">Slutet</h1>
+          </div>
+          <div class="time-box" aria-live="polite">
+            <span>Nu</span>
+            <strong data-current-time>--:--</strong>
+          </div>
+        </div>
+
+        <div data-gate></div>
+
+        <div class="mission-content final-content" data-mission-content hidden>
+          <p>Finalen är redo att fyllas med den sista avslöjande ledtråden.</p>
+          <a class="secondary-action home-action" href="index.html">Till mysteriets startsida</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

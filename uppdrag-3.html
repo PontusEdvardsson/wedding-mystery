@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Middagstidens kod | Bröllopsmysteriet</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="mystery-config.js" defer></script>
+    <script src="shared.js" defer></script>
+    <script src="uppdrag-placeholder.js" defer></script>
+  </head>
+  <body data-step-id="uppdrag-3">
+    <main class="app-shell">
+      <section class="mystery-board mission-board" aria-labelledby="page-title">
+        <div class="board-head">
+          <div>
+            <p class="eyebrow">Uppdrag 3</p>
+            <h1 id="page-title">Middagstidens kod</h1>
+          </div>
+          <div class="time-box" aria-live="polite">
+            <span>Nu</span>
+            <strong data-current-time>--:--</strong>
+          </div>
+        </div>
+
+        <div data-gate></div>
+
+        <div class="mission-content" data-mission-content hidden>
+          <div class="clue-row">
+            <span class="clue-mark" aria-hidden="true"></span>
+            <p class="clue-text" data-placeholder-clue></p>
+          </div>
+
+          <div class="placeholder-panel">
+            <p data-placeholder-answer></p>
+            <div data-test-tools></div>
+          </div>
+
+          <div data-next-action></div>
+          <a class="secondary-action home-action" href="index.html">Till mysteriets startsida</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

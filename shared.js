@@ -1,0 +1,364 @@
+const Mystery = (() => {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("reset") === "1") {
+    Object.values(mysteryStorageKeys).forEach((key) => localStorage.removeItem(key));
+    params.delete("reset");
+    const nextSearch = params.toString();
+    window.location.replace(
+      `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`
+    );
+  }
+
+  function isPreview() {
+    return new URLSearchParams(window.location.search).get("preview") === "1";
+  }
+
+  function linkTo(page) {
+    const nextParams = new URLSearchParams();
+
+    if (isPreview()) {
+      nextParams.set("preview", "1");
+    }
+
+    const query = nextParams.toString();
+    return `${page}${query ? `?${query}` : ""}`;
+  }
+
+  function resetLink() {
+    const params = new URLSearchParams();
+
+    params.set("reset", "1");
+
+    if (isPreview()) {
+      params.set("preview", "1");
+    }
+
+    return `${window.location.pathname}?${params.toString()}`;
+  }
+
+  function readProgress() {
+    return JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
+  }
+
+  function writeProgress(progress) {
+    localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
+  }
+
+  function getCompleted() {
+    return readProgress().completed || {};
+  }
+
+  function isComplete(stepId) {
+    return isPreview() || Boolean(getCompleted()[stepId]);
+  }
+
+  function markStarted(stepId) {
+    const progress = readProgress();
+    progress.startedAt = progress.startedAt || new Date().toISOString();
+    progress.lastPage = getStep(stepId)?.page || progress.lastPage;
+    writeProgress(progress);
+  }
+
+  function markComplete(stepId) {
+    const progress = readProgress();
+    progress.startedAt = progress.startedAt || new Date().toISOString();
+    progress.lastPage = getNextStep(stepId)?.page || getStep(stepId)?.page;
+    progress.completed = {
+      ...(progress.completed || {}),
+      [stepId]: new Date().toISOString(),
+    };
+    writeProgress(progress);
+  }
+
+  function getStep(stepId) {
+    return mysterySteps.find((step) => step.id === stepId);
+  }
+
+  function getStepIndex(stepId) {
+    return mysterySteps.findIndex((step) => step.id === stepId);
+  }
+
+  function getNextStep(stepId) {
+    const index = getStepIndex(stepId);
+    return index >= 0 ? mysterySteps[index + 1] : null;
+  }
+
+  function getPreviousStep(stepId) {
+    const index = getStepIndex(stepId);
+    return index > 0 ? mysterySteps[index - 1] : null;
+  }
+
+  function isTimeUnlocked(step, now = new Date()) {
+    return isPreview() || !step.unlockAt || now >= new Date(step.unlockAt);
+  }
+
+  function canOpenStep(step, now = new Date()) {
+    const requirementMet =
+      step.id === "final"
+        ? mysterySteps.filter((item) => item.id !== "final").every((item) => isComplete(item.id))
+        : !step.requires || isComplete(step.requires);
+    return {
+      requirementMet,
+      timeUnlocked: isTimeUnlocked(step, now),
+      canOpen: requirementMet && isTimeUnlocked(step, now),
+    };
+  }
+
+  function formatClock(date) {
+    return new Intl.DateTimeFormat("sv-SE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  }
+
+  function formatUnlock(date) {
+    return new Intl.DateTimeFormat("sv-SE", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    }).format(date);
+  }
+
+  function formatUnlockLine(date) {
+    const day = formatUnlock(date);
+    const time = new Intl.DateTimeFormat("sv-SE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+      .format(date)
+      .replace(":", ".");
+
+    return `Öppnar ${day} klockan ${time}`;
+  }
+
+  function formatCountdown(target, now = new Date()) {
+    const diff = Math.max(0, target - now);
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const parts = [];
+
+    if (days > 0) {
+      parts.push(formatUnit(days, "dag", "dagar"));
+    }
+
+    if (hours > 0) {
+      parts.push(formatUnit(hours, "timme", "timmar"));
+    }
+
+    if (minutes > 0 || hours > 0 || days > 0) {
+      parts.push(formatUnit(minutes, "minut", "minuter"));
+    }
+
+    if (days === 0 && hours < 24) {
+      parts.push(formatUnit(seconds, "sekund", "sekunder"));
+    }
+
+    return joinSwedishList(parts.filter(Boolean));
+  }
+
+  function formatUnit(value, singular, plural) {
+    return `${value} ${value === 1 ? singular : plural}`;
+  }
+
+  function joinSwedishList(parts) {
+    if (parts.length <= 1) return parts[0] || "0 sekunder";
+    if (parts.length === 2) return `${parts[0]} och ${parts[1]}`;
+    return `${parts.slice(0, -1).join(", ")} och ${parts[parts.length - 1]}`;
+  }
+
+  function updateClock() {
+    document.querySelectorAll("[data-current-time]").forEach((node) => {
+      node.textContent = formatClock(new Date());
+    });
+  }
+
+  function updateProgressSummary() {
+    const playableSteps = mysterySteps.filter((step) => step.id !== "final");
+    const completeCount = playableSteps.filter((step) => isComplete(step.id)).length;
+    const progressLabel = document.querySelector("[data-progress-label]");
+    const progressBar = document.querySelector("[data-progress-bar]");
+    const nextUnlock = document.querySelector("[data-next-unlock]");
+
+    if (progressLabel) {
+      progressLabel.textContent = `${completeCount} av ${playableSteps.length} steg klara`;
+    }
+
+    if (progressBar) {
+      progressBar.style.width = `${(completeCount / playableSteps.length) * 100}%`;
+    }
+
+    if (nextUnlock) {
+      const nextLocked = playableSteps.find((step) => !isComplete(step.id) && !isTimeUnlocked(step));
+      nextUnlock.textContent = nextLocked
+        ? formatUnlockLine(new Date(nextLocked.unlockAt))
+        : "Nästa ledtråd väntar i ordningen";
+    }
+  }
+
+  function renderGate(stepId, options = {}) {
+    const step = getStep(stepId);
+    const gate = document.querySelector("[data-gate]");
+    const content = document.querySelector("[data-mission-content]");
+
+    if (!step || !gate || !content) return false;
+
+    markStarted(stepId);
+    const status = canOpenStep(step);
+
+    if (!status.requirementMet) {
+      const previous = getStep(step.requires) || getPreviousStep(stepId) || mysterySteps[0];
+      gate.innerHTML = sealedMarkup(step, previous);
+      content.hidden = true;
+      return false;
+    }
+
+    if (!status.timeUnlocked) {
+      renderTimeLock(step, gate, content, options);
+      return false;
+    }
+
+    gate.replaceChildren();
+    content.hidden = false;
+
+    if (options.onOpen) options.onOpen(step);
+    return true;
+  }
+
+  function sealedMarkup(step, previous) {
+    return `
+      <div class="locked-panel">
+        <p class="eyebrow">${getStepLabel(step)}</p>
+        <p class="lock-status">Låst</p>
+        <h2>Det här kapitlet är fortfarande förseglat</h2>
+        <p>Fortsätt från föregående uppdrag för att låsa upp den här ledtråden.</p>
+        <a class="secondary-action" href="${linkTo(previous.page)}">Gå tillbaka</a>
+        <a class="text-link" href="${linkTo("index.html")}">Till mysteriets startsida</a>
+      </div>
+    `;
+  }
+
+  function renderTimeLock(step, gate, content, options = {}) {
+    const unlockDate = new Date(step.unlockAt);
+    let opened = false;
+
+    function draw() {
+      const now = new Date();
+
+      if (isTimeUnlocked(step, now)) {
+        gate.replaceChildren();
+        content.hidden = false;
+        if (!opened && options.onOpen) {
+          opened = true;
+          options.onOpen(step);
+        }
+        return;
+      }
+
+      gate.innerHTML = `
+        <div class="locked-panel">
+          <p class="eyebrow">${getStepLabel(step)}</p>
+          <p class="lock-status">Låst</p>
+          <h2>Det här kapitlet är fortfarande förseglat</h2>
+          <p>${formatUnlockLine(unlockDate)}.</p>
+          <strong class="countdown">${formatCountdown(unlockDate, now)}</strong>
+          <a class="secondary-action" href="${linkTo(getPreviousStep(step.id)?.page || "index.html")}">Gå tillbaka</a>
+          <a class="text-link" href="${linkTo("index.html")}">Till mysteriets startsida</a>
+        </div>
+      `;
+      content.hidden = true;
+    }
+
+    draw();
+    const timer = setInterval(() => {
+      draw();
+      if (isTimeUnlocked(step)) clearInterval(timer);
+    }, 1000);
+  }
+
+  function renderNextAction(stepId, target) {
+    const container = target || document.querySelector("[data-next-action]");
+    const nextStep = getNextStep(stepId);
+
+    if (!container || !nextStep) return;
+
+    const label = nextStep.id === "final" ? "Gå vidare till finalen" : "Gå vidare till nästa ledtråd";
+    container.innerHTML = `
+      <a class="primary-action next-action" href="${linkTo(nextStep.page)}">
+        ${label}
+      </a>
+    `;
+  }
+
+  function getStepLabel(step) {
+    const index = getStepIndex(step.id);
+    if (step.id === "final") return "Final";
+    return `Uppdrag ${index + 1}`;
+  }
+
+  function decorateLinks(root = document) {
+    if (!isPreview()) return;
+
+    root.querySelectorAll('a[href$=".html"], a[href="index.html"]').forEach((link) => {
+      link.href = linkTo(link.getAttribute("href"));
+    });
+  }
+
+  function renderResetAction() {
+    const board = document.querySelector(".mystery-board");
+
+    if (!board || document.querySelector("[data-reset-action]")) return;
+
+    const reset = document.createElement("a");
+    reset.className = "reset-action";
+    reset.href = resetLink();
+    reset.dataset.resetAction = "";
+    reset.textContent = "Nollställ";
+    reset.setAttribute("role", "button");
+    board.appendChild(reset);
+  }
+
+  function getBestResumePage() {
+    const progress = readProgress();
+    const allPlayable = mysterySteps.filter((step) => step.id !== "final");
+
+    if (allPlayable.every((step) => isComplete(step.id))) {
+      return "final.html";
+    }
+
+    const firstIncomplete = allPlayable.find((step) => !isComplete(step.id));
+    return progress.lastPage || firstIncomplete?.page || "uppdrag-1.html";
+  }
+
+  updateClock();
+  setInterval(updateClock, 15000);
+  decorateLinks();
+  renderResetAction();
+
+  return {
+    canOpenStep,
+    formatCountdown,
+    formatUnlockLine,
+    formatUnlock,
+    getBestResumePage,
+    getCompleted,
+    getNextStep,
+    getPreviousStep,
+    getStep,
+    isComplete,
+    isPreview,
+    isTimeUnlocked,
+    linkTo,
+    resetLink,
+    markComplete,
+    markStarted,
+    readProgress,
+    decorateLinks,
+    renderGate,
+    renderNextAction,
+    updateProgressSummary,
+  };
+})();

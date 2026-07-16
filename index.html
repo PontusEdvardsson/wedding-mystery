@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bröllopsmysteriet</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="mystery-config.js" defer></script>
+    <script src="shared.js" defer></script>
+    <script src="index.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="mystery-board intro-board" aria-labelledby="page-title">
+        <div class="board-head">
+          <div>
+            <p class="eyebrow">QR-mysterium</p>
+            <h1 id="page-title">Bröllopsmysteriet</h1>
+          </div>
+          <div class="time-box" aria-live="polite">
+            <span>Nu</span>
+            <strong data-current-time>--:--</strong>
+          </div>
+        </div>
+
+        <div class="intro-copy">
+          <p>
+            Ett namn är gömt, men det är bara början. Lös uppdragen i ordning
+            och låt kvällen öppna nästa ledtråd när tiden är inne.
+          </p>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span data-progress-label>0 av 0 steg klara</span>
+            <span data-next-unlock>Nästa ledtråd laddas...</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-bar" data-progress-bar></div>
+          </div>
+        </div>
+
+        <ol class="chapter-list" data-chapter-list></ol>
+
+        <a class="primary-action" data-primary-action href="uppdrag-1.html">
+          Börja mysteriet
+        </a>
+      </section>
+    </main>
+  </body>
+</html>
