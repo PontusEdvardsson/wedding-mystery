@@ -960,6 +960,13 @@ h1 {
   justify-items: center;
 }
 
+.sudoku-instruction {
+  width: min(100%, 560px);
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+
 .sudoku-board {
   width: min(100%, 560px);
   aspect-ratio: 1;
@@ -1020,6 +1027,15 @@ h1 {
   color: #08100d;
   background: var(--gold);
   opacity: 1;
+}
+
+.sudoku-cell.is-clue {
+  cursor: pointer;
+  font-size: clamp(1.15rem, 5.4vw, 2.15rem);
+}
+
+.sudoku-cell.is-clue[aria-expanded="true"] {
+  background: linear-gradient(135deg, var(--gold), var(--pine));
 }
 
 .sudoku-cell.is-error {
@@ -1101,6 +1117,28 @@ h1 {
   font-weight: 900;
   pointer-events: none;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+}
+
+.sudoku-clue-panel {
+  width: min(100%, 560px);
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 12px 14px;
+  border: 1px solid rgba(212, 168, 79, 0.38);
+  border-radius: 8px;
+  color: var(--ink);
+  background: rgba(13, 16, 22, 0.86);
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+}
+
+.sudoku-clue-panel[hidden] {
+  display: none;
+}
+
+.sudoku-drag-help {
+  margin-top: -4px;
 }
 
 .sudoku-clues {

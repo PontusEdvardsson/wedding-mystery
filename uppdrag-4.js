@@ -6,6 +6,7 @@ const givenMap = new Map(puzzle.givens.map((given) => [given.cell, given]));
 let hintWasUnlocked = Mystery.isHintUnlocked(step);
 let selectedNumber = null;
 let focusedCell = null;
+let activeClueCell = null;
 let pointerDrag = null;
 let suppressNextNumberClick = false;
 
@@ -61,7 +62,7 @@ function renderSudoku() {
     wrapper.appendChild(hint);
   }
 
-  wrapper.append(renderBoard(), renderNumberBank());
+  wrapper.append(renderIntro(), renderBoard(), renderActiveClue(), renderNumberBank(), renderNumberHelp());
 
   if (puzzle.clues.length > 0) {
     wrapper.append(renderClues());
@@ -99,19 +100,26 @@ function renderBoard() {
   for (let cell = 0; cell < 81; cell += 1) {
     const given = givenMap.get(cell);
     const button = document.createElement("button");
-    const value = given?.display || given?.value || state.entries[cell] || "";
+    const value = given ? "?" : state.entries[cell] || "";
 
     button.type = "button";
     button.className = "sudoku-cell";
-    button.disabled = state.completed || Boolean(given);
+    button.disabled = state.completed && !given;
     button.textContent = value;
     button.setAttribute(
       "aria-label",
-      value ? `Ruta ${cell + 1}, ${value}` : `Ruta ${cell + 1}, tom`
+      given
+        ? `Ruta ${cell + 1}, dold ledtråd`
+        : value
+          ? `Ruta ${cell + 1}, ${value}`
+          : `Ruta ${cell + 1}, tom`
     );
 
     if (given) {
-      button.classList.add("is-given");
+      button.classList.add("is-given", "is-clue");
+      button.setAttribute("aria-expanded", activeClueCell === cell ? "true" : "false");
+      button.addEventListener("click", () => toggleGivenClue(cell));
+      button.addEventListener("keydown", (event) => handleGivenKeydown(cell, event));
     } else {
       button.addEventListener("click", () => placeSelectedNumber(cell));
       button.addEventListener("focus", () => {
@@ -142,6 +150,36 @@ function renderBoard() {
   }
 
   return board;
+}
+
+function renderIntro() {
+  const intro = document.createElement("p");
+  intro.className = "sudoku-instruction";
+  intro.textContent = "Klicka på ? för att se vad som gömmer sig där.";
+  return intro;
+}
+
+function renderActiveClue() {
+  const panel = document.createElement("div");
+  const given = givenMap.get(activeClueCell);
+
+  panel.className = "sudoku-clue-panel";
+  panel.setAttribute("aria-live", "polite");
+
+  if (!given) {
+    panel.hidden = true;
+    return panel;
+  }
+
+  panel.textContent = given.clue || "Här ska en ledtråd som leder till siffran ligga.";
+  return panel;
+}
+
+function renderNumberHelp() {
+  const help = document.createElement("p");
+  help.className = "sudoku-instruction sudoku-drag-help";
+  help.textContent = "Dra och släpp siffror på rätt ställen.";
+  return help;
 }
 
 function renderNumberBank() {
@@ -211,6 +249,26 @@ function renderClues() {
   });
 
   return list;
+}
+
+function toggleGivenClue(cell) {
+  activeClueCell = activeClueCell === cell ? null : cell;
+  renderSudoku();
+  focusCell(cell);
+}
+
+function handleGivenKeydown(cell, event) {
+  const direction = {
+    ArrowLeft: -1,
+    ArrowRight: 1,
+    ArrowUp: -9,
+    ArrowDown: 9,
+  }[event.key];
+
+  if (!direction) return;
+
+  event.preventDefault();
+  focusCell(cell + direction, { includeGiven: true });
 }
 
 function renderStatus() {
@@ -389,11 +447,11 @@ function handleCellKeydown(cell, event) {
   }
 }
 
-function focusCell(cell) {
+function focusCell(cell, options = {}) {
   const cells = [...document.querySelectorAll(".sudoku-cell")];
   const target = cells[cell];
 
-  if (target && !target.disabled) {
+  if (target && (!target.disabled || options.includeGiven)) {
     target.focus({ preventScroll: true });
   }
 }
