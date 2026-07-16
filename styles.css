@@ -970,7 +970,7 @@ h1 {
 .sudoku-local-reset {
   width: min(100%, 560px);
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .sudoku-local-reset .button-action {
@@ -1206,9 +1206,8 @@ h1 {
 }
 
 .sudoku-actions {
-  width: min(100%, 420px);
+  width: min(100%, 220px);
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 

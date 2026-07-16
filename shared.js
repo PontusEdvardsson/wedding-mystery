@@ -314,6 +314,13 @@ const Mystery = (() => {
   function renderResetAction() {
     const board = document.querySelector(".mystery-board");
 
+    if (
+      window.location.pathname.split("/").pop() !== "index.html" &&
+      window.location.pathname.split("/").pop() !== ""
+    ) {
+      return;
+    }
+
     if (!board || document.querySelector("[data-reset-action]")) return;
 
     const reset = document.createElement("a");

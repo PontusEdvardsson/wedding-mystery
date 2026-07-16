@@ -368,7 +368,6 @@ function renderStatus() {
 function renderActions() {
   const actions = document.createElement("div");
   const check = document.createElement("button");
-  const clear = document.createElement("button");
 
   actions.className = "sudoku-actions";
 
@@ -378,13 +377,7 @@ function renderActions() {
   check.disabled = state.completed;
   check.addEventListener("click", checkSudoku);
 
-  clear.type = "button";
-  clear.className = "secondary-action button-action";
-  clear.textContent = "Rensa";
-  clear.disabled = state.completed || Object.keys(state.entries).length === 0;
-  clear.addEventListener("click", clearEntries);
-
-  actions.append(check, clear);
+  actions.append(check);
   return actions;
 }
 
