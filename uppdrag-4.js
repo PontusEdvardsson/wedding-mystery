@@ -32,6 +32,7 @@ function normalizeState(savedState) {
     messageTone: savedState?.messageTone || "neutral",
     checkedCells: savedState?.checkedCells || {},
     justCompleted: Boolean(savedState?.justCompleted),
+    givensRevealed: Boolean(savedState?.givensRevealed),
   };
 }
 
@@ -45,6 +46,7 @@ function saveState() {
       messageTone: state.messageTone,
       checkedCells: state.checkedCells,
       justCompleted: state.justCompleted,
+      givensRevealed: state.givensRevealed,
     })
   );
 }
@@ -55,14 +57,14 @@ function renderSudoku() {
   const wrapper = document.createElement("div");
   wrapper.className = "sudoku";
 
-  if (!state.completed && Mystery.isHintUnlocked(step)) {
-    const hint = document.createElement("p");
-    hint.className = "timed-hint";
-    hint.textContent = step.hintText;
-    wrapper.appendChild(hint);
-  }
-
-  wrapper.append(renderIntro(), renderBoard(), renderActiveClue(), renderNumberBank(), renderNumberHelp());
+  wrapper.append(
+    renderIntro(),
+    renderHintRevealAction(),
+    renderBoard(),
+    renderActiveClue(),
+    renderNumberBank(),
+    renderNumberHelp()
+  );
 
   if (puzzle.clues.length > 0) {
     wrapper.append(renderClues());
@@ -100,26 +102,32 @@ function renderBoard() {
   for (let cell = 0; cell < 81; cell += 1) {
     const given = givenMap.get(cell);
     const button = document.createElement("button");
-    const value = given ? "?" : state.entries[cell] || "";
+    const value = given ? (state.givensRevealed ? given.value : "?") : state.entries[cell] || "";
 
     button.type = "button";
     button.className = "sudoku-cell";
-    button.disabled = state.completed && !given;
+    button.disabled = state.completed || (Boolean(given) && state.givensRevealed);
     button.textContent = value;
     button.setAttribute(
       "aria-label",
       given
-        ? `Ruta ${cell + 1}, dold ledtråd`
+        ? state.givensRevealed
+          ? `Ruta ${cell + 1}, ${given.value}`
+          : `Ruta ${cell + 1}, dold ledtråd`
         : value
           ? `Ruta ${cell + 1}, ${value}`
           : `Ruta ${cell + 1}, tom`
     );
 
     if (given) {
-      button.classList.add("is-given", "is-clue");
-      button.setAttribute("aria-expanded", activeClueCell === cell ? "true" : "false");
-      button.addEventListener("click", () => toggleGivenClue(cell));
-      button.addEventListener("keydown", (event) => handleGivenKeydown(cell, event));
+      button.classList.add("is-given");
+
+      if (!state.givensRevealed) {
+        button.classList.add("is-clue");
+        button.setAttribute("aria-expanded", activeClueCell === cell ? "true" : "false");
+        button.addEventListener("click", () => toggleGivenClue(cell));
+        button.addEventListener("keydown", (event) => handleGivenKeydown(cell, event));
+      }
     } else {
       button.addEventListener("click", () => placeSelectedNumber(cell));
       button.addEventListener("focus", () => {
@@ -155,8 +163,30 @@ function renderBoard() {
 function renderIntro() {
   const intro = document.createElement("p");
   intro.className = "sudoku-instruction";
-  intro.textContent = "Klicka på ? för att se vad som gömmer sig där.";
+  intro.textContent = state.givensRevealed
+    ? "Startsiffrorna är framme."
+    : "Klicka på ? för att se vad som gömmer sig där.";
   return intro;
+}
+
+function renderHintRevealAction() {
+  const panel = document.createElement("div");
+
+  panel.className = "sudoku-hint-action";
+
+  if (state.completed || state.givensRevealed || !Mystery.isHintUnlocked(step)) {
+    panel.hidden = true;
+    return panel;
+  }
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "primary-action button-action";
+  button.textContent = "Ledtråd";
+  button.addEventListener("click", revealGivens);
+
+  panel.appendChild(button);
+  return panel;
 }
 
 function renderActiveClue() {
@@ -180,6 +210,13 @@ function renderNumberHelp() {
   help.className = "sudoku-instruction sudoku-drag-help";
   help.textContent = "Dra och släpp siffror på rätt ställen.";
   return help;
+}
+
+function revealGivens() {
+  state.givensRevealed = true;
+  activeClueCell = null;
+  saveState();
+  renderSudoku();
 }
 
 function renderNumberBank() {

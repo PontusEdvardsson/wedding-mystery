@@ -967,6 +967,21 @@ h1 {
   text-align: center;
 }
 
+.sudoku-hint-action {
+  width: min(100%, 420px);
+  display: grid;
+}
+
+.sudoku-hint-action[hidden] {
+  display: none;
+}
+
+.sudoku-hint-action .button-action {
+  min-height: 56px;
+  font-size: 1.08rem;
+  animation: action-pulse 1.8s ease-in-out infinite;
+}
+
 .sudoku-board {
   width: min(100%, 560px);
   aspect-ratio: 1;
