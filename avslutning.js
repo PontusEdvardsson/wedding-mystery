@@ -79,7 +79,7 @@ function createLetter() {
     <p>Se efter om någon av schackpjäserna <strong>kung, drottning, löpare, riddare, torn eller bonde</strong> saknas från brudparets bord.</p>
     <p>Om en pjäs saknas får <strong>högst en person per bord</strong> gå till schackbrädet i andra änden av lokalen och hämta den saknade pjäsen.</p>
     <p>Ställ den diskret på brudparets bord.</p>
-    <p class="letter-reward">När pjäsen står på plats väntar ett pris till hela bordet.</p>
+    <p class="letter-reward">När pjäsen står på plats, stanna kvar vid brudparets bord. Brudparet har något till hela ert bord.</p>
   `;
   return letter;
 }
