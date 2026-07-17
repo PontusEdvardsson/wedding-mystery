@@ -1,7 +1,7 @@
 const endingStep = Mystery.getStep("avslutning");
 const endingRoot = document.querySelector("[data-ending-root]");
 const endingState = normalizeEndingState(
-  JSON.parse(localStorage.getItem(mysteryStorageKeys.ending) || "null")
+  Mystery.readStoredJson(mysteryStorageKeys.ending, null)
 );
 
 Mystery.renderGate(endingStep.id, {
@@ -17,10 +17,7 @@ function normalizeEndingState(savedState) {
 }
 
 function saveEndingState() {
-  localStorage.setItem(
-    mysteryStorageKeys.ending,
-    JSON.stringify({ opened: endingState.opened })
-  );
+  Mystery.writeStoredJson(mysteryStorageKeys.ending, { opened: endingState.opened });
 }
 
 function renderEnding() {

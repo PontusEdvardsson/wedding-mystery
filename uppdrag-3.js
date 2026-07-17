@@ -7,7 +7,7 @@ let animationTimer = null;
 let hintWasUnlocked = Mystery.isHintUnlocked(step);
 
 const state = normalizeState(
-  JSON.parse(localStorage.getItem(mysteryStorageKeys.cipher) || "null")
+  Mystery.readStoredJson(mysteryStorageKeys.cipher, null)
 );
 
 Mystery.renderGate("uppdrag-3", {
@@ -21,24 +21,27 @@ Mystery.renderGate("uppdrag-3", {
 });
 
 function normalizeState(savedState) {
+  if (savedState?.encodedText && savedState.encodedText !== puzzle.encodedText) {
+    savedState = null;
+  }
+
   return {
     solved: Boolean(savedState?.solved),
     decodedText: savedState?.decodedText || "",
     message: savedState?.message || "",
     hasError: false,
+    currentAnswer: "",
     currentDisplay: savedState?.solved ? savedState.decodedText || puzzle.decodedText : puzzle.encodedText,
   };
 }
 
 function saveState() {
-  localStorage.setItem(
-    mysteryStorageKeys.cipher,
-    JSON.stringify({
-      solved: state.solved,
-      decodedText: state.decodedText,
-      message: state.message,
-    })
-  );
+  Mystery.writeStoredJson(mysteryStorageKeys.cipher, {
+    encodedText: puzzle.encodedText,
+    solved: state.solved,
+    decodedText: state.decodedText,
+    message: state.message,
+  });
 }
 
 function renderCipher() {
@@ -60,7 +63,7 @@ function renderCipher() {
 
   cipherText.className = "cipher-text";
   cipherText.textContent = state.solved ? puzzle.decodedText : state.currentDisplay;
-  cipherText.setAttribute("aria-live", "polite");
+  cipherText.setAttribute("aria-live", state.solved ? "polite" : "off");
   wrapper.appendChild(cipherText);
 
   if (state.solved) {
@@ -87,7 +90,10 @@ function renderForm() {
   input.autocomplete = "off";
   input.setAttribute("aria-label", "Svar");
   input.disabled = isChecking;
-  input.value = input.dataset.value || "";
+  input.value = state.currentAnswer;
+  input.addEventListener("input", () => {
+    state.currentAnswer = input.value;
+  });
 
   button.className = "primary-action button-action";
   button.type = "submit";
@@ -128,6 +134,7 @@ function handleSubmit(event) {
 
   const input = event.currentTarget.querySelector(".cipher-input");
   const answer = input.value.trim().toUpperCase();
+  state.currentAnswer = input.value;
 
   if (puzzle.acceptedAnswers.includes(answer)) {
     solveCipher();
@@ -137,11 +144,7 @@ function handleSubmit(event) {
   state.message = "Fel. Testa igen.";
   state.hasError = true;
   renderCipher();
-  const nextInput = document.querySelector(".cipher-input");
-  if (nextInput) {
-    nextInput.value = input.value;
-    nextInput.focus({ preventScroll: true });
-  }
+  document.querySelector(".cipher-input")?.focus({ preventScroll: true });
 }
 
 function solveCipher() {
@@ -201,6 +204,7 @@ function finishSolve() {
   state.solved = true;
   state.decodedText = puzzle.decodedText;
   state.currentDisplay = puzzle.decodedText;
+  state.currentAnswer = "";
   Mystery.markComplete(step.id);
   saveState();
   renderCipher();
@@ -237,12 +241,7 @@ function renderTestTools() {
   });
 
   container.querySelector("[data-test-reset]").addEventListener("click", () => {
-    localStorage.removeItem(mysteryStorageKeys.cipher);
-    const progress = JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
-    if (progress.completed) {
-      delete progress.completed["uppdrag-3"];
-      localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
-    }
+    Mystery.resetProgressFrom(step.id);
     window.location.href = Mystery.linkTo("uppdrag-3.html");
   });
 }

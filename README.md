@@ -17,7 +17,6 @@ En statisk QR-sida för ett interaktivt bröllopsmysterium i dark mode.
 - `mystery-config.js`: uppdragens ordning, länkar, tider, krav och texter.
 - `shared.js`: gemensam progression, låsning, countdown, preview och reset.
 - `uppdrag-1.js`: Wordle-logiken.
-- `uppdrag-placeholder.js`: enkel logik för platshållaruppdrag.
 - `styles.css`: gemensam dark mode-design.
 
 ## Wordle-låset
@@ -55,14 +54,27 @@ kan visa exempelvis `A` medan lösningsvärdet fortfarande är en siffra.
 ## Lägga till uppdrag
 
 Lägg till ett objekt före steget med `ending: true` i `mysterySteps` i
-`mystery-config.js`. Ge det `id`, `page`, `title`, `unlockAt` och `requires`,
-och ändra avslutningens `requires` till det nya uppdragets id. Skapa sedan
-motsvarande HTML-sida och använd `shared.js` för progression och tidlås.
+`mystery-config.js`. Ge det `id`, `page`, `title`, `unlockAt` och `requires`.
+Avslutningen kräver automatiskt steget som ligger precis före den, så dess
+konfiguration behöver inte ändras. Skapa sedan motsvarande HTML-sida och använd
+`shared.js` för progression och tidlås.
 
 ## Testlägen
 
 - `?preview=1`: öppnar sidor oavsett tid och tidigare progression.
 - `?reset=1`: rensar sparad testdata och laddar sidan i ursprungsläge.
+
+Preview-läget använder separata `localStorage`-nycklar och påverkar därför inte
+den riktiga spelprogressionen.
+
+## Ljud
+
+Sidan ska alltid vara helt ljudlös. HTML-sidorna blockerar alla mediafiler med
+`Content-Security-Policy: media-src 'none'`, och projektet ska inte använda
+`audio`, `video`, Web Audio API eller automatisk uppläsning.
+
+Kör `./verify.ps1` för att kontrollera detta tillsammans med UTF-8, filreferenser,
+cacheversioner och pusseldatan. Samma kontroll körs automatiskt på GitHub.
 
 Under utveckling ligger nya uppdrag öppna utan tidslås i `mystery-config.js`.
 Sätt tillbaka `unlockAt` när bröllopets faktiska tider är bestämda.

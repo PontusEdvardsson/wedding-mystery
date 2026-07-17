@@ -87,19 +87,19 @@ function updateHomeCountdown() {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   const units = [
-    ["dagar", days],
-    ["timmar", hours],
-    ["minuter", minutes],
-    ["sekunder", seconds],
+    ["dag", "dagar", days],
+    ["timme", "timmar", hours],
+    ["minut", "minuter", minutes],
+    ["sekund", "sekunder", seconds],
   ];
 
   homeCountdown.replaceChildren(
-    ...units.map(([label, value]) => {
+    ...units.map(([singular, plural, value]) => {
       const item = document.createElement("span");
       item.className = "countdown-unit";
       item.innerHTML = `
         <strong>${String(value).padStart(2, "0")}</strong>
-        <em>${label}</em>
+        <em>${value === 1 ? singular : plural}</em>
       `;
       return item;
     })

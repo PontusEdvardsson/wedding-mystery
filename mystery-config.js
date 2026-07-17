@@ -1,18 +1,13 @@
-const mysteryHome = {
-  countdownTarget: "2026-08-01T17:30:00",
-};
-
 const mysterySteps = [
   {
     id: "uppdrag-1",
     page: "uppdrag-1.html",
     title: "Ordlåset",
     unlockAt: null,
-    hintUnlockAt: "2026-08-01T17:30:00",
+    hintUnlockAt: "2026-08-01T17:30:00+02:00",
     hintText: "Brudens smeknamn",
     requires: null,
     clue: "Lös det fem bokstäver långa ordet för att komma vidare.",
-    answer: "SARRI",
     puzzle: {
       type: "wordle",
       answer: "SARRI",
@@ -25,7 +20,7 @@ const mysterySteps = [
     page: "uppdrag-2.html",
     title: "Trådarna mellan oss",
     unlockAt: null,
-    hintUnlockAt: "2026-08-01T18:00:00",
+    hintUnlockAt: "2026-08-01T18:00:00+02:00",
     hintText: "Kategorier",
     requires: "uppdrag-1",
     clue: "Hitta fyra dolda samband. Varje grupp består av fyra ord.",
@@ -62,7 +57,7 @@ const mysterySteps = [
     page: "uppdrag-3.html",
     title: "Namnen bakom mysteriet",
     unlockAt: null,
-    hintUnlockAt: "2026-08-01T18:30:00",
+    hintUnlockAt: "2026-08-01T18:30:00+02:00",
     hintText: "Alfabetet",
     requires: "uppdrag-2",
     clue: "Avkoda ledtråden och skriv in namnet på personen vi söker.",
@@ -80,7 +75,7 @@ const mysterySteps = [
     page: "uppdrag-4.html",
     title: "Siffrorna mellan oss",
     unlockAt: null,
-    hintUnlockAt: "2026-08-01T19:00:00",
+    hintUnlockAt: "2026-08-01T19:00:00+02:00",
     hintText: "Visa startsiffrorna",
     requires: "uppdrag-3",
     puzzle: {
@@ -118,7 +113,6 @@ const mysterySteps = [
         { cell: 79, value: "7", clue: "Antal Harry Potter-böcker i huvudserien." },
         { cell: 80, value: "9", clue: "3²." },
       ],
-      clues: [],
     },
   },
   {
@@ -128,7 +122,7 @@ const mysterySteps = [
     unlockAt: null,
     hintUnlockAt: null,
     hintText: "",
-    requires: "uppdrag-4",
+    requires: null,
     ending: true,
   },
 ];

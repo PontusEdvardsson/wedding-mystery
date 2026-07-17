@@ -1,11 +1,12 @@
 const step = Mystery.getStep("uppdrag-2");
 const puzzle = step.puzzle;
 const root = document.querySelector("[data-connections-root]");
+const puzzleSignature = JSON.stringify(puzzle.groups);
 let cooldownTimer = null;
 let hintWasUnlocked = Mystery.isHintUnlocked(step);
 
 const state = normalizeState(
-  JSON.parse(localStorage.getItem(mysteryStorageKeys.connections) || "null")
+  Mystery.readStoredJson(mysteryStorageKeys.connections, null)
 );
 
 Mystery.renderGate("uppdrag-2", {
@@ -19,22 +20,47 @@ Mystery.renderGate("uppdrag-2", {
 });
 
 function normalizeState(savedState) {
+  if (savedState?.puzzleSignature && savedState.puzzleSignature !== puzzleSignature) {
+    savedState = null;
+  }
+
   const allCards = getAllCards();
-  const savedOrder = savedState?.order || [];
-  const order = savedOrder.length === allCards.length ? savedOrder : shuffle(allCards.map((card) => card.id));
+  const validCardIds = new Set(allCards.map((card) => card.id));
+  const validGroupIds = new Set(puzzle.groups.map((group) => group.id));
+  const savedOrder = Array.isArray(savedState?.order)
+    ? [...new Set(savedState.order.filter((id) => validCardIds.has(id)))]
+    : [];
+  const order = savedOrder.length === allCards.length
+    ? savedOrder
+    : shuffle(allCards.map((card) => card.id));
+  const solvedGroups = Array.isArray(savedState?.solvedGroups)
+    ? [...new Set(savedState.solvedGroups.filter((id) => validGroupIds.has(id)))]
+    : [];
+  const selected = Array.isArray(savedState?.selected)
+    ? [...new Set(savedState.selected.filter((id) => validCardIds.has(id)))]
+        .filter((id) => !solvedGroups.includes(getCardsById().get(id)?.groupId))
+        .slice(0, 4)
+    : [];
 
   return {
     order,
-    selected: savedState?.selected || [],
-    solvedGroups: savedState?.solvedGroups || [],
-    mistakeCount: savedState?.mistakeCount || 0,
-    cooldownUntil: savedState?.cooldownUntil || null,
-    completed: Boolean(savedState?.completed),
-    message: savedState?.message || "",
-    messageTone: savedState?.messageTone || "neutral",
+    selected,
+    solvedGroups,
+    mistakeCount: Number.isInteger(savedState?.mistakeCount)
+      ? Math.max(0, savedState.mistakeCount)
+      : 0,
+    cooldownUntil: Number.isFinite(savedState?.cooldownUntil)
+      ? savedState.cooldownUntil
+      : null,
+    completed:
+      Boolean(savedState?.completed) && solvedGroups.length === puzzle.groups.length,
+    message: typeof savedState?.message === "string" ? savedState.message : "",
+    messageTone: ["neutral", "success", "error"].includes(savedState?.messageTone)
+      ? savedState.messageTone
+      : "neutral",
     justCompleted: Boolean(savedState?.justCompleted),
     revealedHints: Array.isArray(savedState?.revealedHints)
-      ? savedState.revealedHints
+      ? [...new Set(savedState.revealedHints.filter((id) => validGroupIds.has(id)))]
       : [],
   };
 }
@@ -54,21 +80,19 @@ function getCardsById() {
 }
 
 function saveState() {
-  localStorage.setItem(
-    mysteryStorageKeys.connections,
-    JSON.stringify({
-      order: state.order,
-      selected: state.selected,
-      solvedGroups: state.solvedGroups,
-      mistakeCount: state.mistakeCount,
-      cooldownUntil: state.cooldownUntil,
-      completed: state.completed,
-      message: state.message,
-      messageTone: state.messageTone,
-      justCompleted: state.justCompleted,
-      revealedHints: state.revealedHints,
-    })
-  );
+  Mystery.writeStoredJson(mysteryStorageKeys.connections, {
+    puzzleSignature,
+    order: state.order,
+    selected: state.selected,
+    solvedGroups: state.solvedGroups,
+    mistakeCount: state.mistakeCount,
+    cooldownUntil: state.cooldownUntil,
+    completed: state.completed,
+    message: state.message,
+    messageTone: state.messageTone,
+    justCompleted: state.justCompleted,
+    revealedHints: state.revealedHints,
+  });
 }
 
 function renderConnections() {
@@ -287,12 +311,7 @@ function renderTestTools() {
   });
 
   container.querySelector("[data-test-reset]").addEventListener("click", () => {
-    localStorage.removeItem(mysteryStorageKeys.connections);
-    const progress = JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
-    if (progress.completed) {
-      delete progress.completed["uppdrag-2"];
-      localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
-    }
+    Mystery.resetProgressFrom(step.id);
     window.location.href = Mystery.linkTo("uppdrag-2.html");
   });
 }
@@ -331,7 +350,6 @@ function submitGroup() {
   if (groupIds.size === 1 && !state.solvedGroups.includes(selectedCards[0].groupId)) {
     state.solvedGroups = [...state.solvedGroups, selectedCards[0].groupId];
     state.selected = [];
-    state.mistakeCount = 0;
     state.message = "Rätt samband hittat.";
     state.messageTone = "success";
 

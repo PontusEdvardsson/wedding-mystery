@@ -1,8 +1,15 @@
 const Mystery = (() => {
   const params = new URLSearchParams(window.location.search);
+  const previewMode = params.get("preview") === "1";
+
+  if (previewMode) {
+    Object.keys(mysteryStorageKeys).forEach((name) => {
+      mysteryStorageKeys[name] = `${mysteryStorageKeys[name]}.preview`;
+    });
+  }
 
   if (params.get("reset") === "1") {
-    Object.values(mysteryStorageKeys).forEach((key) => localStorage.removeItem(key));
+    Object.values(mysteryStorageKeys).forEach(removeStoredValue);
     params.delete("reset");
     const nextSearch = params.toString();
     window.location.replace(
@@ -11,7 +18,34 @@ const Mystery = (() => {
   }
 
   function isPreview() {
-    return new URLSearchParams(window.location.search).get("preview") === "1";
+    return previewMode;
+  }
+
+  function readStoredJson(key, fallback = null) {
+    try {
+      const rawValue = localStorage.getItem(key);
+      return rawValue === null ? fallback : JSON.parse(rawValue);
+    } catch {
+      removeStoredValue(key);
+      return fallback;
+    }
+  }
+
+  function writeStoredJson(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function removeStoredValue(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // The app remains usable in memory when storage is unavailable.
+    }
   }
 
   function linkTo(page) {
@@ -38,11 +72,14 @@ const Mystery = (() => {
   }
 
   function readProgress() {
-    return JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
+    const progress = readStoredJson(mysteryStorageKeys.progress, {});
+    return progress && typeof progress === "object" && !Array.isArray(progress)
+      ? progress
+      : {};
   }
 
   function writeProgress(progress) {
-    localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
+    writeStoredJson(mysteryStorageKeys.progress, progress);
   }
 
   function getCompleted() {
@@ -98,7 +135,9 @@ const Mystery = (() => {
   }
 
   function canOpenStep(step, now = new Date()) {
-    const requirementMet = !step.requires || isComplete(step.requires);
+    const previousStep = getPreviousStep(step.id);
+    const requirementId = step.ending ? previousStep?.id : step.requires;
+    const requirementMet = !requirementId || isComplete(requirementId);
     return {
       requirementMet,
       timeUnlocked: isTimeUnlocked(step, now),
@@ -177,29 +216,6 @@ const Mystery = (() => {
     });
   }
 
-  function updateProgressSummary() {
-    const playableSteps = mysterySteps.filter((step) => !step.ending);
-    const completeCount = playableSteps.filter((step) => isComplete(step.id)).length;
-    const progressLabel = document.querySelector("[data-progress-label]");
-    const progressBar = document.querySelector("[data-progress-bar]");
-    const nextUnlock = document.querySelector("[data-next-unlock]");
-
-    if (progressLabel) {
-      progressLabel.textContent = `${completeCount} av ${playableSteps.length} steg klara`;
-    }
-
-    if (progressBar) {
-      progressBar.style.width = `${(completeCount / playableSteps.length) * 100}%`;
-    }
-
-    if (nextUnlock) {
-      const nextLocked = playableSteps.find((step) => !isComplete(step.id) && !isTimeUnlocked(step));
-      nextUnlock.textContent = nextLocked
-        ? formatUnlockLine(new Date(nextLocked.unlockAt))
-        : "Nästa ledtråd väntar i ordningen";
-    }
-  }
-
   function renderGate(stepId, options = {}) {
     const step = getStep(stepId);
     const gate = document.querySelector("[data-gate]");
@@ -211,7 +227,9 @@ const Mystery = (() => {
     const status = canOpenStep(step);
 
     if (!status.requirementMet) {
-      const previous = getStep(step.requires) || getPreviousStep(stepId) || mysterySteps[0];
+      const previous = step.ending
+        ? getPreviousStep(stepId)
+        : getStep(step.requires) || getPreviousStep(stepId);
       gate.innerHTML = sealedMarkup(step, previous);
       content.hidden = true;
       return false;
@@ -236,7 +254,7 @@ const Mystery = (() => {
         <p class="lock-status">Låst</p>
         <h2>Det här kapitlet är fortfarande förseglat</h2>
         <p>Fortsätt från föregående uppdrag för att låsa upp den här ledtråden.</p>
-        <a class="secondary-action" href="${linkTo(previous.page)}">Gå tillbaka</a>
+        <a class="secondary-action" href="${linkTo(previous?.page || "index.html")}">Gå tillbaka</a>
         <a class="text-link" href="${linkTo("index.html")}">Till mysteriets startsida</a>
       </div>
     `;
@@ -348,6 +366,33 @@ const Mystery = (() => {
     return canResume ? resumeStep.page : firstIncomplete?.page || "uppdrag-1.html";
   }
 
+  function resetProgressFrom(stepId) {
+    const startIndex = getStepIndex(stepId);
+
+    if (startIndex < 0) return;
+
+    const storageByStep = {
+      "uppdrag-1": mysteryStorageKeys.wordle,
+      "uppdrag-2": mysteryStorageKeys.connections,
+      "uppdrag-3": mysteryStorageKeys.cipher,
+      "uppdrag-4": mysteryStorageKeys.sudoku,
+      avslutning: mysteryStorageKeys.ending,
+    };
+    const progress = readProgress();
+
+    mysterySteps.slice(startIndex).forEach((candidate) => {
+      if (storageByStep[candidate.id]) {
+        removeStoredValue(storageByStep[candidate.id]);
+      }
+      if (progress.completed) {
+        delete progress.completed[candidate.id];
+      }
+    });
+
+    progress.lastPage = getStep(stepId)?.page || "uppdrag-1.html";
+    writeProgress(progress);
+  }
+
   updateClock();
   setInterval(updateClock, 15000);
   decorateLinks();
@@ -371,10 +416,13 @@ const Mystery = (() => {
     resetLink,
     markComplete,
     markStarted,
+    readStoredJson,
     readProgress,
+    removeStoredValue,
     decorateLinks,
     renderGate,
     renderNextAction,
-    updateProgressSummary,
+    resetProgressFrom,
+    writeStoredJson,
   };
 })();

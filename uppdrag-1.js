@@ -1,7 +1,7 @@
 const step = Mystery.getStep("uppdrag-1");
 const puzzle = step.puzzle;
 
-const savedWordle = JSON.parse(localStorage.getItem(mysteryStorageKeys.wordle) || "null");
+const savedWordle = Mystery.readStoredJson(mysteryStorageKeys.wordle, null);
 
 const wordleState = normalizeWordleState(savedWordle);
 const wordleRoot = document.querySelector("[data-wordle-root]");
@@ -14,29 +14,42 @@ Mystery.renderGate("uppdrag-1", {
 });
 
 function normalizeWordleState(savedState) {
+  if (savedState?.answer && savedState.answer !== puzzle.answer) {
+    savedState = null;
+  }
+
+  const guesses = Array.isArray(savedState?.guesses)
+    ? savedState.guesses
+        .filter((guess) => typeof guess === "string")
+        .map(sanitizeGuess)
+        .filter((guess) => guess.length === puzzle.answer.length)
+    : [];
+  const solved = Boolean(savedState?.solved) && guesses.includes(puzzle.answer);
+
   return {
-    guesses: savedState?.guesses || [],
-    currentGuess: savedState?.currentGuess || "",
-    solved: Boolean(savedState?.solved),
+    guesses,
+    currentGuess: sanitizeGuess(savedState?.currentGuess || ""),
+    solved,
     message: savedState?.message || "",
     shouldShake: false,
     justSolved: Boolean(savedState?.justSolved),
-    keyStatuses: savedState?.keyStatuses || {},
+    keyStatuses:
+      savedState?.keyStatuses && typeof savedState.keyStatuses === "object"
+        ? savedState.keyStatuses
+        : {},
   };
 }
 
 function saveWordle() {
-  localStorage.setItem(
-    mysteryStorageKeys.wordle,
-    JSON.stringify({
-      guesses: wordleState.guesses,
-      currentGuess: wordleState.currentGuess,
-      solved: wordleState.solved,
-      message: wordleState.message,
-      justSolved: wordleState.justSolved,
-      keyStatuses: wordleState.keyStatuses,
-    })
-  );
+  Mystery.writeStoredJson(mysteryStorageKeys.wordle, {
+    answer: puzzle.answer,
+    guesses: wordleState.guesses,
+    currentGuess: wordleState.currentGuess,
+    solved: wordleState.solved,
+    message: wordleState.message,
+    justSolved: wordleState.justSolved,
+    keyStatuses: wordleState.keyStatuses,
+  });
 }
 
 function renderWordle() {
@@ -59,10 +72,9 @@ function renderWordle() {
   board.className = "wordle-board";
   board.setAttribute("aria-label", "Ordlås");
 
-  const rowCount = Math.max(
-    puzzle.visibleRows,
-    wordleState.guesses.length + (isWordleFinished() ? 0 : 1)
-  );
+  const rowCount = wordleState.solved
+    ? wordleState.guesses.length
+    : Math.max(puzzle.visibleRows, wordleState.guesses.length + 1);
 
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
     board.appendChild(renderWordleRow(rowIndex));
@@ -134,7 +146,7 @@ function renderSolvedMessage() {
 
   container.className = "solved-message";
   firstLine.textContent = "Första låset är öppnat.";
-  secondLine.textContent = Mystery.isTimeUnlocked(nextStep)
+  secondLine.textContent = nextStep && Mystery.isTimeUnlocked(nextStep)
     ? "Nästa ledtråd väntar."
     : "Jakten fortsätter när nästa ledtråd anländer.";
 
@@ -318,13 +330,18 @@ function scrollResultIntoView() {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
+
   const key = event.key.toUpperCase();
 
   if (key === "BACKSPACE") {
+    event.preventDefault();
     handleWordleInput("BACK");
   } else if (key === "ENTER") {
+    event.preventDefault();
     handleWordleInput("ENTER");
   } else if (/^[A-Z]$/.test(key)) {
+    event.preventDefault();
     handleWordleInput(key);
   }
 });

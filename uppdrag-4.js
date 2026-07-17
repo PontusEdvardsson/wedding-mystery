@@ -11,7 +11,7 @@ let pointerDrag = null;
 let suppressNextNumberClick = false;
 
 const state = normalizeState(
-  JSON.parse(localStorage.getItem(mysteryStorageKeys.sudoku) || "null")
+  Mystery.readStoredJson(mysteryStorageKeys.sudoku, null)
 );
 
 Mystery.renderGate("uppdrag-4", {
@@ -25,32 +25,51 @@ Mystery.renderGate("uppdrag-4", {
 });
 
 function normalizeState(savedState) {
+  if (savedState?.solution && savedState.solution !== puzzle.solution) {
+    savedState = null;
+  }
+
   return {
-    entries: savedState?.entries || {},
+    entries: normalizeEntries(savedState?.entries, false),
     completed: Boolean(savedState?.completed),
-    message: savedState?.message || "",
-    messageTone: savedState?.messageTone || "neutral",
-    checkedCells: savedState?.checkedCells || {},
+    message: typeof savedState?.message === "string" ? savedState.message : "",
+    messageTone: ["neutral", "success", "error"].includes(savedState?.messageTone)
+      ? savedState.messageTone
+      : "neutral",
     justCompleted: Boolean(savedState?.justCompleted),
     givensRevealed: Boolean(savedState?.givensRevealed),
-    givenEntries: savedState?.givenEntries || {},
+    givenEntries: normalizeEntries(savedState?.givenEntries, true),
   };
 }
 
-function saveState() {
-  localStorage.setItem(
-    mysteryStorageKeys.sudoku,
-    JSON.stringify({
-      entries: state.entries,
-      completed: state.completed,
-      message: state.message,
-      messageTone: state.messageTone,
-      checkedCells: state.checkedCells,
-      justCompleted: state.justCompleted,
-      givensRevealed: state.givensRevealed,
-      givenEntries: state.givenEntries,
+function normalizeEntries(entries, forGivens) {
+  if (!entries || typeof entries !== "object" || Array.isArray(entries)) return {};
+
+  return Object.fromEntries(
+    Object.entries(entries).filter(([rawCell, value]) => {
+      const cell = Number(rawCell);
+      return (
+        Number.isInteger(cell) &&
+        cell >= 0 &&
+        cell < 81 &&
+        givenMap.has(cell) === forGivens &&
+        /^[1-9]$/.test(value)
+      );
     })
   );
+}
+
+function saveState() {
+  Mystery.writeStoredJson(mysteryStorageKeys.sudoku, {
+    solution: puzzle.solution,
+    entries: state.entries,
+    completed: state.completed,
+    message: state.message,
+    messageTone: state.messageTone,
+    justCompleted: state.justCompleted,
+    givensRevealed: state.givensRevealed,
+    givenEntries: state.givenEntries,
+  });
 }
 
 function renderSudoku() {
@@ -68,10 +87,6 @@ function renderSudoku() {
     renderNumberBank(),
     renderNumberHelp()
   );
-
-  if (puzzle.clues.length > 0) {
-    wrapper.append(renderClues());
-  }
 
   wrapper.append(renderStatus(), renderActions());
 
@@ -307,22 +322,6 @@ function renderNumberBank() {
   return bank;
 }
 
-function renderClues() {
-  const list = document.createElement("dl");
-  list.className = "sudoku-clues";
-
-  puzzle.clues.forEach((clue) => {
-    const term = document.createElement("dt");
-    const desc = document.createElement("dd");
-
-    term.textContent = clue.label;
-    desc.textContent = clue.text;
-    list.append(term, desc);
-  });
-
-  return list;
-}
-
 function toggleGivenClue(cell) {
   activeClueCell = activeClueCell === cell ? null : cell;
   renderSudoku();
@@ -330,16 +329,11 @@ function toggleGivenClue(cell) {
 }
 
 function handleGivenKeydown(cell, event) {
-  const direction = {
-    ArrowLeft: -1,
-    ArrowRight: 1,
-    ArrowUp: -9,
-    ArrowDown: 9,
-  }[event.key];
+  const nextCell = getAdjacentCell(cell, event.key);
 
-  if (direction) {
+  if (nextCell !== null) {
     event.preventDefault();
-    focusCell(cell + direction, { includeGiven: true });
+    focusCell(nextCell, { includeGiven: true });
     return;
   }
 
@@ -488,7 +482,6 @@ function setCellValue(cell, rawValue) {
     delete state.entries[cell];
   }
 
-  delete state.checkedCells[cell];
   state.message = "";
   state.messageTone = "neutral";
   saveState();
@@ -497,16 +490,11 @@ function setCellValue(cell, rawValue) {
 }
 
 function handleCellKeydown(cell, event) {
-  const direction = {
-    ArrowLeft: -1,
-    ArrowRight: 1,
-    ArrowUp: -9,
-    ArrowDown: 9,
-  }[event.key];
+  const nextCell = getAdjacentCell(cell, event.key);
 
-  if (direction) {
+  if (nextCell !== null) {
     event.preventDefault();
-    focusCell(cell + direction);
+    focusCell(nextCell);
     return;
   }
 
@@ -521,6 +509,17 @@ function handleCellKeydown(cell, event) {
     event.preventDefault();
     setCellValue(cell, "");
   }
+}
+
+function getAdjacentCell(cell, key) {
+  const row = Math.floor(cell / 9);
+  const column = cell % 9;
+
+  if (key === "ArrowLeft" && column > 0) return cell - 1;
+  if (key === "ArrowRight" && column < 8) return cell + 1;
+  if (key === "ArrowUp" && row > 0) return cell - 9;
+  if (key === "ArrowDown" && row < 8) return cell + 9;
+  return null;
 }
 
 function focusCell(cell, options = {}) {
@@ -553,14 +552,12 @@ function checkSudoku() {
     }
   }
 
-  state.checkedCells = {};
-
-  if (hasError) {
-    state.message = "Ej korrekt.";
-    state.messageTone = "error";
-  } else if (hasEmpty) {
+  if (hasEmpty) {
     state.message = "Fyll i alla rutor först.";
     state.messageTone = "neutral";
+  } else if (hasError) {
+    state.message = "Ej korrekt.";
+    state.messageTone = "error";
   } else {
     state.message = "Korrekt.";
     completeMission();
@@ -570,20 +567,9 @@ function checkSudoku() {
   renderSudoku();
 }
 
-function clearEntries() {
-  state.entries = {};
-  state.givenEntries = {};
-  state.checkedCells = {};
-  state.message = "";
-  state.messageTone = "neutral";
-  saveState();
-  renderSudoku();
-}
-
 function resetSudoku() {
   state.entries = {};
   state.givenEntries = {};
-  state.checkedCells = {};
   state.givensRevealed = false;
   state.completed = false;
   state.justCompleted = false;
@@ -592,11 +578,7 @@ function resetSudoku() {
   activeClueCell = null;
   selectedNumber = null;
   focusedCell = null;
-  const progress = JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
-  if (progress.completed) {
-    delete progress.completed[step.id];
-    localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
-  }
+  Mystery.resetProgressFrom(step.id);
   saveState();
   renderSudoku();
 }
@@ -635,7 +617,6 @@ function renderTestTools() {
         state.entries[cell] = puzzle.solution[cell];
       }
     }
-    state.checkedCells = {};
     state.message = "Lösningen är ifylld.";
     state.messageTone = "success";
     saveState();
@@ -656,12 +637,7 @@ function renderTestTools() {
   });
 
   container.querySelector("[data-test-reset]").addEventListener("click", () => {
-    localStorage.removeItem(mysteryStorageKeys.sudoku);
-    const progress = JSON.parse(localStorage.getItem(mysteryStorageKeys.progress) || "{}");
-    if (progress.completed) {
-      delete progress.completed["uppdrag-4"];
-      localStorage.setItem(mysteryStorageKeys.progress, JSON.stringify(progress));
-    }
+    Mystery.resetProgressFrom(step.id);
     window.location.href = Mystery.linkTo("uppdrag-4.html");
   });
 }
@@ -676,7 +652,6 @@ function fillSudokuSolution() {
     }
   }
 
-  state.checkedCells = {};
   state.message = "Korrekt.";
   state.messageTone = "success";
 }
