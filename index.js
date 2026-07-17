@@ -2,14 +2,14 @@ const action = document.querySelector("[data-primary-action]");
 const chapterList = document.querySelector("[data-chapter-list]");
 const homeCountdown = document.querySelector("[data-home-countdown]");
 const homeCountdownLabel = document.querySelector("[data-home-countdown-label]");
-const playableSteps = mysterySteps;
+const playableSteps = mysterySteps.filter((step) => !step.ending);
 const started = Boolean(Mystery.readProgress().startedAt);
 const allDone = playableSteps.every((step) => Mystery.isComplete(step.id));
 
 if (action) {
   action.href = Mystery.linkTo(Mystery.getBestResumePage());
   action.textContent = allDone
-    ? "Visa mina lösningar"
+    ? "Öppna brevet"
     : started
       ? "Fortsätt mysteriet"
       : "Börja mysteriet";

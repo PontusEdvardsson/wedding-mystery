@@ -178,7 +178,7 @@ const Mystery = (() => {
   }
 
   function updateProgressSummary() {
-    const playableSteps = mysterySteps;
+    const playableSteps = mysterySteps.filter((step) => !step.ending);
     const completeCount = playableSteps.filter((step) => isComplete(step.id)).length;
     const progressLabel = document.querySelector("[data-progress-label]");
     const progressBar = document.querySelector("[data-progress-bar]");
@@ -295,7 +295,11 @@ const Mystery = (() => {
   }
 
   function getStepLabel(step) {
-    const index = getStepIndex(step.id);
+    if (step.ending) return "Förseglat brev";
+
+    const index = mysterySteps.filter((candidate) => !candidate.ending).findIndex(
+      (candidate) => candidate.id === step.id
+    );
     return `Uppdrag ${index + 1}`;
   }
 
@@ -330,14 +334,18 @@ const Mystery = (() => {
 
   function getBestResumePage() {
     const progress = readProgress();
-    const allPlayable = mysterySteps;
+    const allPlayable = mysterySteps.filter((step) => !step.ending);
+    const ending = mysterySteps.find((step) => step.ending);
 
     if (allPlayable.every((step) => isComplete(step.id))) {
-      return allPlayable.at(-1)?.page || "uppdrag-1.html";
+      return ending?.page || allPlayable.at(-1)?.page || "uppdrag-1.html";
     }
 
     const firstIncomplete = allPlayable.find((step) => !isComplete(step.id));
-    return progress.lastPage || firstIncomplete?.page || "uppdrag-1.html";
+    const resumeStep = mysterySteps.find((step) => step.page === progress.lastPage);
+    const canResume = resumeStep && !resumeStep.ending && canOpenStep(resumeStep).canOpen;
+
+    return canResume ? resumeStep.page : firstIncomplete?.page || "uppdrag-1.html";
   }
 
   updateClock();

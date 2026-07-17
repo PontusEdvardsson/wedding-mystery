@@ -12,7 +12,8 @@ En statisk QR-sida för ett interaktivt bröllopsmysterium i dark mode.
 - `uppdrag-3.js`: chifferlogiken för uppdrag 3.
 - `uppdrag-4.html`: Sudoku-uppdrag.
 - `uppdrag-4.js`: Sudoku-logiken för uppdrag 4.
-- `final.html`: platshållare för finalen.
+- `avslutning.html`: det förseglade brevet som alltid ligger sist.
+- `avslutning.js`: öppningslogik och sparning för brevet.
 - `mystery-config.js`: uppdragens ordning, länkar, tider, krav och texter.
 - `shared.js`: gemensam progression, låsning, countdown, preview och reset.
 - `uppdrag-1.js`: Wordle-logiken.
@@ -53,9 +54,10 @@ kan visa exempelvis `A` medan lösningsvärdet fortfarande är en siffra.
 
 ## Lägga till uppdrag
 
-Lägg till ett objekt i `mysterySteps` i `mystery-config.js` med `id`, `page`,
-`title`, `unlockAt` och `requires`. Skapa sedan motsvarande HTML-sida och använd
-`shared.js` för att kontrollera progression och tidlås.
+Lägg till ett objekt före steget med `ending: true` i `mysterySteps` i
+`mystery-config.js`. Ge det `id`, `page`, `title`, `unlockAt` och `requires`,
+och ändra avslutningens `requires` till det nya uppdragets id. Skapa sedan
+motsvarande HTML-sida och använd `shared.js` för progression och tidlås.
 
 ## Testlägen
 

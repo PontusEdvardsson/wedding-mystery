@@ -347,6 +347,177 @@ h1 {
   justify-self: center;
 }
 
+.ending-shell {
+  min-height: 100svh;
+  align-items: center;
+}
+
+.ending-board {
+  overflow: hidden;
+}
+
+.ending-experience {
+  min-height: clamp(430px, 68svh, 620px);
+  display: grid;
+  place-items: center;
+  padding: clamp(28px, 7vw, 62px) 0 18px;
+}
+
+.sealed-envelope {
+  position: relative;
+  width: min(100%, 390px);
+  aspect-ratio: 1.55;
+  display: grid;
+  place-items: center;
+  padding: 36px 24px 20px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 168, 79, 0.48);
+  border-radius: 6px;
+  color: #efe5d7;
+  background:
+    linear-gradient(32deg, transparent 49.5%, rgba(212, 168, 79, 0.2) 50%, transparent 50.5%),
+    linear-gradient(-32deg, transparent 49.5%, rgba(212, 168, 79, 0.2) 50%, transparent 50.5%),
+    #171a20;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.42);
+  font: inherit;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.sealed-envelope::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: radial-gradient(circle at 50% 48%, rgba(212, 168, 79, 0.09), transparent 38%);
+}
+
+.sealed-envelope:hover {
+  border-color: rgba(212, 168, 79, 0.78);
+  transform: translateY(-2px);
+}
+
+.sealed-envelope:focus-visible {
+  outline: 3px solid rgba(212, 168, 79, 0.58);
+  outline-offset: 5px;
+}
+
+.sealed-envelope strong {
+  align-self: end;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.envelope-flap {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 64%;
+  border-bottom: 1px solid rgba(212, 168, 79, 0.34);
+  background: linear-gradient(160deg, #1d2128, #12151a);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top;
+}
+
+.wax-seal {
+  position: relative;
+  z-index: 1;
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c6887e;
+  border-radius: 50%;
+  color: #f2d7d0;
+  background: #7d3f3c;
+  box-shadow:
+    0 0 0 5px rgba(125, 63, 60, 0.35),
+    0 8px 20px rgba(0, 0, 0, 0.35);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.sealed-envelope.is-opening .envelope-flap {
+  animation: open-envelope-flap 620ms ease-in forwards;
+}
+
+.sealed-envelope.is-opening .wax-seal {
+  animation: break-seal 420ms ease-in forwards;
+}
+
+.ending-letter {
+  width: min(100%, 560px);
+  padding: clamp(28px, 7vw, 54px) clamp(22px, 6vw, 48px);
+  border: 1px solid rgba(212, 168, 79, 0.38);
+  border-radius: 4px;
+  color: #e8dfd3;
+  background:
+    linear-gradient(rgba(18, 20, 25, 0.96), rgba(18, 20, 25, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(212, 168, 79, 0.08) 28px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.42);
+  animation: reveal-letter 520ms ease-out both;
+}
+
+.ending-letter p {
+  margin: 0;
+  font-size: clamp(1rem, 3.8vw, 1.12rem);
+  line-height: 1.65;
+}
+
+.ending-letter p + p {
+  margin-top: 18px;
+}
+
+.letter-kicker {
+  color: var(--gold);
+  font-size: 0.82rem !important;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.chess-piece-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+  margin: 24px 0 30px;
+  color: #e2bd68;
+  font-size: clamp(1.65rem, 8vw, 2.45rem);
+  line-height: 1;
+  text-align: center;
+}
+
+.letter-reward {
+  padding-top: 18px;
+  border-top: 1px solid rgba(212, 168, 79, 0.28);
+  color: #f0cf82;
+  font-weight: 850;
+  text-align: center;
+}
+
+@keyframes open-envelope-flap {
+  to {
+    opacity: 0;
+    transform: rotateX(120deg);
+  }
+}
+
+@keyframes break-seal {
+  to {
+    opacity: 0;
+    transform: scale(1.25) rotate(8deg);
+  }
+}
+
+@keyframes reveal-letter {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+}
+
 .reset-action {
   position: absolute;
   top: 12px;
@@ -1556,6 +1727,10 @@ h1 {
   .connections-success,
   .cipher-success,
   .sudoku-success,
+  .sealed-envelope,
+  .sealed-envelope.is-opening .envelope-flap,
+  .sealed-envelope.is-opening .wax-seal,
+  .ending-letter,
   .next-action,
   .cipher-form.shake,
   .wordle-row.shake,

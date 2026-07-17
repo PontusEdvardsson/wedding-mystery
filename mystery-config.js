@@ -121,6 +121,16 @@ const mysterySteps = [
       clues: [],
     },
   },
+  {
+    id: "avslutning",
+    page: "avslutning.html",
+    title: "Det förseglade brevet",
+    unlockAt: null,
+    hintUnlockAt: null,
+    hintText: "",
+    requires: "uppdrag-4",
+    ending: true,
+  },
 ];
 
 const mysteryStorageKeys = {
@@ -129,4 +139,5 @@ const mysteryStorageKeys = {
   connections: "weddingMystery.connections.uppdrag-2",
   cipher: "weddingMystery.cipher.uppdrag-3",
   sudoku: "weddingMystery.sudoku.uppdrag-4",
+  ending: "weddingMystery.ending",
 };
