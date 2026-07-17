@@ -65,7 +65,12 @@ function updateHomeCountdown() {
     if (homeCountdownLabel) {
       homeCountdownLabel.hidden = true;
     }
-    homeCountdown.innerHTML = `<span class="countdown-ready">Alla ledtrådar väntar</span>`;
+    homeCountdown.innerHTML = `
+      <span class="countdown-ready">
+        <small>Alla ledtrådar är funna</small>
+        <strong>Ett sista meddelande väntar</strong>
+      </span>
+    `;
     return;
   }
 

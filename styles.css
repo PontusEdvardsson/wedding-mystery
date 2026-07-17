@@ -185,17 +185,41 @@ h1 {
 }
 
 .countdown-ready {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: clamp(86px, 18vw, 128px);
-  padding: 0 clamp(18px, 6vw, 42px);
+  width: min(100%, 620px);
+  min-height: clamp(130px, 24vw, 176px);
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  padding: clamp(26px, 6vw, 42px);
   border: 1px solid rgba(212, 168, 79, 0.32);
-  border-radius: 10px;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(13, 16, 22, 0.82), rgba(13, 16, 22, 0.94)),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 42px,
+      rgba(212, 168, 79, 0.05) 42px 43px
+    );
+  text-align: center;
+}
+
+.countdown-ready small {
+  position: relative;
+  color: var(--gold);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.countdown-ready strong {
+  max-width: 12ch;
   color: var(--ink);
-  background: rgba(13, 16, 22, 0.52);
-  font-size: clamp(1.65rem, 6vw, 3.15rem);
-  line-height: 1.05;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 8vw, 3.7rem);
+  font-weight: 700;
+  line-height: 1;
+  text-wrap: balance;
 }
 
 .locked-panel p {
