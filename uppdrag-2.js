@@ -33,6 +33,9 @@ function normalizeState(savedState) {
     message: savedState?.message || "",
     messageTone: savedState?.messageTone || "neutral",
     justCompleted: Boolean(savedState?.justCompleted),
+    revealedHints: Array.isArray(savedState?.revealedHints)
+      ? savedState.revealedHints
+      : [],
   };
 }
 
@@ -63,6 +66,7 @@ function saveState() {
       message: state.message,
       messageTone: state.messageTone,
       justCompleted: state.justCompleted,
+      revealedHints: state.revealedHints,
     })
   );
 }
@@ -103,16 +107,44 @@ function renderConnections() {
 }
 
 function renderTimedHint() {
-  const hint = document.createElement("p");
-  hint.className = "timed-hint";
+  const hint = document.createElement("section");
+  hint.className = "connections-hint-panel";
 
-  if (!Mystery.isHintUnlocked(step)) {
+  if (!Mystery.isHintUnlocked(step) || state.completed) {
     hint.hidden = true;
     return hint;
   }
 
-  hint.textContent = step.hintText;
+  const title = document.createElement("strong");
+  const list = document.createElement("div");
+
+  title.textContent = step.hintText;
+  list.className = "connections-hint-list";
+
+  puzzle.groups.forEach((group) => {
+    const button = document.createElement("button");
+    const revealed = state.revealedHints.includes(group.id);
+
+    button.type = "button";
+    button.className = "connections-spoiler";
+    button.classList.toggle("is-revealed", revealed);
+    button.setAttribute("aria-expanded", revealed ? "true" : "false");
+    button.setAttribute("aria-label", revealed ? group.title : "Visa dold kategori");
+    button.textContent = revealed ? group.title : "Dold kategori";
+    button.addEventListener("click", () => revealCategoryHint(group.id));
+    list.appendChild(button);
+  });
+
+  hint.append(title, list);
   return hint;
+}
+
+function revealCategoryHint(groupId) {
+  if (state.revealedHints.includes(groupId)) return;
+
+  state.revealedHints.push(groupId);
+  saveState();
+  renderConnections();
 }
 
 function renderSolvedGroups() {

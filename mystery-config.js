@@ -26,7 +26,7 @@ const mysterySteps = [
     title: "Trådarna mellan oss",
     unlockAt: null,
     hintUnlockAt: "2026-08-01T18:00:00",
-    hintText: "Placeholder-ledtråd för uppdrag 2.",
+    hintText: "Kategorier",
     requires: "uppdrag-1",
     clue: "Hitta fyra dolda samband. Varje grupp består av fyra ord.",
     puzzle: {
@@ -63,7 +63,7 @@ const mysterySteps = [
     title: "Namnen bakom mysteriet",
     unlockAt: null,
     hintUnlockAt: "2026-08-01T18:30:00",
-    hintText: "Placeholder-ledtråd för uppdrag 3.",
+    hintText: "Alfabetet",
     requires: "uppdrag-2",
     clue: "Avkoda ledtråden och skriv in namnet på personen vi söker.",
     puzzle: {
@@ -81,7 +81,7 @@ const mysterySteps = [
     title: "Siffrorna mellan oss",
     unlockAt: null,
     hintUnlockAt: "2026-08-01T19:00:00",
-    hintText: "Placeholder-ledtråd för uppdrag 4.",
+    hintText: "Visa startsiffrorna",
     requires: "uppdrag-3",
     puzzle: {
       type: "sudoku",

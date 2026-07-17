@@ -743,6 +743,72 @@ h1 {
   gap: 14px;
 }
 
+.connections-hint-panel {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid rgba(212, 168, 79, 0.32);
+  border-radius: 8px;
+  background: rgba(13, 16, 22, 0.82);
+  text-align: center;
+}
+
+.connections-hint-panel[hidden] {
+  display: none;
+}
+
+.connections-hint-panel > strong {
+  color: var(--gold);
+  font-size: 0.92rem;
+}
+
+.connections-hint-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.connections-spoiler {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #343b47;
+  border-radius: 6px;
+  color: transparent;
+  background: #2b3039;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+  user-select: none;
+}
+
+.connections-spoiler::after {
+  content: "Tryck för att visa";
+  color: #9ca3af;
+  font-size: 0.78rem;
+}
+
+.connections-spoiler:hover,
+.connections-spoiler:focus-visible {
+  border-color: rgba(212, 168, 79, 0.62);
+  background: #343a45;
+}
+
+.connections-spoiler:focus-visible {
+  outline: 2px solid #daaf37;
+  outline-offset: 2px;
+}
+
+.connections-spoiler.is-revealed {
+  color: var(--ink);
+  border-color: rgba(212, 168, 79, 0.38);
+  background: rgba(212, 168, 79, 0.12);
+  cursor: default;
+}
+
+.connections-spoiler.is-revealed::after {
+  content: none;
+}
+
 .connections-solved {
   display: grid;
   gap: 8px;
