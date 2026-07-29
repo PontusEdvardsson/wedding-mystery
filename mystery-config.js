@@ -12,7 +12,7 @@ const mysterySteps = [
       type: "wordle",
       answer: "SARRI",
       maxAttempts: null,
-      visibleRows: 6,
+      visibleRows: 4,
     },
   },
   {

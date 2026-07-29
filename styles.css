@@ -1398,16 +1398,25 @@ h1 {
 
 @media (max-width: 640px) {
   .app-shell {
+    min-height: 100dvh;
     align-items: stretch;
     padding: 8px;
   }
 
   .mystery-board {
-    min-height: calc(100vh - 16px);
+    min-height: calc(100dvh - 16px);
+  }
+
+  .mission-board {
+    padding: 12px;
   }
 
   .board-head {
     display: grid;
+  }
+
+  .board-head-quiet {
+    margin-bottom: 0;
   }
 
   .time-box {
@@ -1419,7 +1428,26 @@ h1 {
   }
 
   .wordle-board {
-    max-height: min(62vh, 374px);
+    width: min(100%, 300px);
+    max-height: min(50dvh, 374px);
+    gap: 5px;
+  }
+
+  .wordle-row {
+    gap: 5px;
+  }
+
+  .wordle {
+    gap: 10px;
+    margin-top: 0;
+  }
+
+  .keyboard {
+    gap: 5px;
+  }
+
+  .key {
+    height: 40px;
   }
 
   .sudoku-number-bank {
@@ -1450,7 +1478,7 @@ h1 {
   }
 
   .wordle-board {
-    max-height: 342px;
+    max-height: min(48dvh, 342px);
   }
 
   .keyboard-row {
