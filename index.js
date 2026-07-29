@@ -18,7 +18,7 @@ if (action) {
 if (chapterList) {
   const firstIncompleteIndex = playableSteps.findIndex((step) => !Mystery.isComplete(step.id));
   const visibleSteps = playableSteps.filter((step, index) => {
-    return Mystery.isComplete(step.id) || index === firstIncompleteIndex;
+    return Mystery.isPreview() || Mystery.isComplete(step.id) || index === firstIncompleteIndex;
   });
 
   chapterList.replaceChildren(
@@ -57,11 +57,26 @@ if (chapterList) {
 function updateHomeCountdown() {
   if (!homeCountdown) return;
 
+  if (Mystery.isPreview()) {
+    homeCountdown.classList.add("is-ready");
+    if (homeCountdownLabel) {
+      homeCountdownLabel.hidden = true;
+    }
+    homeCountdown.innerHTML = `
+      <span class="countdown-ready">
+        <small>Previewläge</small>
+        <strong>Välj ett lås att testa</strong>
+      </span>
+    `;
+    return;
+  }
+
   const nextHintStep = playableSteps.find(
     (step) => step.hintUnlockAt && !Mystery.isHintUnlocked(step)
   );
 
   if (!nextHintStep) {
+    homeCountdown.classList.add("is-ready");
     if (homeCountdownLabel) {
       homeCountdownLabel.hidden = true;
     }
@@ -73,6 +88,8 @@ function updateHomeCountdown() {
     `;
     return;
   }
+
+  homeCountdown.classList.remove("is-ready");
 
   if (homeCountdownLabel) {
     homeCountdownLabel.hidden = false;

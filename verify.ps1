@@ -53,6 +53,16 @@ if ($cacheVersions.Count -ne 1) {
   $errors.Add("HTML files do not use one shared cache version.")
 }
 
+$shared = [System.IO.File]::ReadAllText((Join-Path $root "shared.js"), $strictUtf8)
+
+if ($shared -match 'function isComplete\([^)]*\)\s*\{\s*return isPreview\(') {
+  $errors.Add("Preview mode must not mark every step as complete.")
+}
+
+if ($shared -notmatch 'const requirementMet = isPreview\(\) \|\|') {
+  $errors.Add("Preview mode must bypass progression gates without completing steps.")
+}
+
 $config = [System.IO.File]::ReadAllText((Join-Path $root "mystery-config.js"), $strictUtf8)
 $solutionMatch = [regex]::Match($config, 'solution: "([1-9]{81})"')
 

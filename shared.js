@@ -87,7 +87,7 @@ const Mystery = (() => {
   }
 
   function isComplete(stepId) {
-    return isPreview() || Boolean(getCompleted()[stepId]);
+    return Boolean(getCompleted()[stepId]);
   }
 
   function markStarted(stepId) {
@@ -137,7 +137,7 @@ const Mystery = (() => {
   function canOpenStep(step, now = new Date()) {
     const previousStep = getPreviousStep(step.id);
     const requirementId = step.ending ? previousStep?.id : step.requires;
-    const requirementMet = !requirementId || isComplete(requirementId);
+    const requirementMet = isPreview() || !requirementId || isComplete(requirementId);
     return {
       requirementMet,
       timeUnlocked: isTimeUnlocked(step, now),

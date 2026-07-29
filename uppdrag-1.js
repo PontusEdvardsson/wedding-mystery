@@ -10,6 +10,7 @@ let hintWasUnlocked = Mystery.isHintUnlocked(step);
 Mystery.renderGate("uppdrag-1", {
   onOpen() {
     renderWordle();
+    renderTestTools();
   },
 });
 
@@ -258,6 +259,43 @@ function isWordleFinished() {
     wordleState.solved ||
     (hasAttemptLimit() && wordleState.guesses.length >= puzzle.maxAttempts)
   );
+}
+
+function renderTestTools() {
+  const container = document.querySelector("[data-test-tools]");
+
+  if (!container) return;
+
+  if (!Mystery.isPreview()) {
+    container.remove();
+    return;
+  }
+
+  container.className = "test-tools";
+  container.innerHTML = `
+    <p>Testverktyg – visas endast i preview-läge</p>
+    <button class="secondary-action button-action" type="button" data-test-complete>Färdigställ lås 1</button>
+    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast lås 1</button>
+  `;
+
+  container.querySelector("[data-test-complete]").addEventListener("click", () => {
+    if (!wordleState.guesses.includes(puzzle.answer)) {
+      wordleState.guesses.push(puzzle.answer);
+    }
+    wordleState.currentGuess = "";
+    wordleState.solved = true;
+    wordleState.justSolved = true;
+    wordleState.message = "";
+    updateKeyStatuses(puzzle.answer);
+    Mystery.markComplete(step.id);
+    saveWordle();
+    renderWordle();
+  });
+
+  container.querySelector("[data-test-reset]").addEventListener("click", () => {
+    Mystery.resetProgressFrom(step.id);
+    window.location.href = Mystery.linkTo("uppdrag-1.html");
+  });
 }
 
 function updateKeyStatuses(guess) {

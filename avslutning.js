@@ -76,10 +76,10 @@ function createLetter() {
       <span aria-hidden="true">♜</span>
       <span aria-hidden="true">♟</span>
     </div>
-    <p>Se efter om någon av schackpjäserna <strong>kung, drottning, löpare, riddare, torn eller bonde</strong> saknas från brudparets bord.</p>
-    <p>Om en pjäs saknas får <strong>högst en person per bord</strong> gå till schackbrädet i andra änden av lokalen och hämta den saknade pjäsen.</p>
-    <p>Ställ den diskret på brudparets bord.</p>
-    <p class="letter-reward">När pjäsen står på plats, stanna kvar vid brudparets bord. Brudparet har något till hela ert bord.</p>
+    <p>Se efter om någon av de vita schackpjäserna <strong>kung (1), drottning (2), löpare (3), riddare (4), torn (5) eller bonde (6) finns kvar på schackbrädet i andra änden av lokalen</strong>.</p>
+    <p>Om så, ta den bästa som finns kvar med dig.</p>
+    <p>Ställ den diskret på ert bord.</p>
+    <p class="letter-reward">Ni har klarat mysteriet! Grymt jobbat och tack för att ni har varit med och deltagit och förverkligat vår dröm om att ha ett middagsmysterie på vårt bröllop!</p>
   `;
   return letter;
 }

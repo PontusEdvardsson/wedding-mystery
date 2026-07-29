@@ -281,8 +281,8 @@ function renderTestTools() {
     <p>Testverktyg – visas endast i preview-läge</p>
     <button class="secondary-action button-action" type="button" data-test-cooldown>Aktivera cooldown direkt</button>
     <button class="secondary-action button-action" type="button" data-test-end-cooldown>Avsluta cooldown</button>
-    <button class="secondary-action button-action" type="button" data-test-solve>Lös alla grupper</button>
-    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast uppdrag 2</button>
+    <button class="secondary-action button-action" type="button" data-test-solve>Färdigställ lås 2</button>
+    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast lås 2</button>
   `;
 
   container.querySelector("[data-test-cooldown]").addEventListener("click", () => {

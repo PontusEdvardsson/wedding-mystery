@@ -639,9 +639,8 @@ function renderTestTools() {
   container.innerHTML = `
     <p>Testverktyg – visas endast i preview-läge</p>
     <button class="secondary-action button-action" type="button" data-test-solve>Fyll i lösning</button>
-    <button class="secondary-action button-action" type="button" data-test-finish>Lös hela sudoku</button>
-    <button class="secondary-action button-action" type="button" data-test-complete>Markera uppdraget som löst</button>
-    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast uppdrag 4</button>
+    <button class="secondary-action button-action" type="button" data-test-finish>Färdigställ lås 4</button>
+    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast lås 4</button>
   `;
 
   container.querySelector("[data-test-solve]").addEventListener("click", () => {
@@ -660,12 +659,6 @@ function renderTestTools() {
 
   container.querySelector("[data-test-finish]").addEventListener("click", () => {
     fillSudokuSolution();
-    completeMission();
-    saveState();
-    renderSudoku();
-  });
-
-  container.querySelector("[data-test-complete]").addEventListener("click", () => {
     completeMission();
     saveState();
     renderSudoku();

@@ -260,8 +260,8 @@ function renderTestTools() {
   container.innerHTML = `
     <p>Testverktyg – visas endast i preview-läge</p>
     <button class="secondary-action button-action" type="button" data-test-fill>Fyll i rätt svar</button>
-    <button class="secondary-action button-action" type="button" data-test-solve>Markera uppdraget som löst</button>
-    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast uppdrag 3</button>
+    <button class="secondary-action button-action" type="button" data-test-solve>Färdigställ lås 3</button>
+    <button class="secondary-action button-action" type="button" data-test-reset>Återställ endast lås 3</button>
   `;
 
   container.querySelector("[data-test-fill]").addEventListener("click", () => {
