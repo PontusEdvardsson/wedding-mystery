@@ -253,7 +253,7 @@ const Mystery = (() => {
         <p class="eyebrow">${getStepLabel(step)}</p>
         <p class="lock-status">Låst</p>
         <h2>Det här kapitlet är fortfarande förseglat</h2>
-        <p>Fortsätt från föregående uppdrag för att låsa upp den här ledtråden.</p>
+        <p>Öppna föregående lås för att komma vidare.</p>
         <a class="secondary-action" href="${linkTo(previous?.page || "index.html")}">Gå tillbaka</a>
         <a class="text-link" href="${linkTo("index.html")}">Till mysteriets startsida</a>
       </div>
@@ -304,7 +304,7 @@ const Mystery = (() => {
 
     if (!container || !nextStep) return;
 
-    const label = "Gå vidare till nästa ledtråd";
+    const label = "Gå vidare till nästa lås";
     container.innerHTML = `
       <a class="primary-action next-action" href="${linkTo(nextStep.page)}">
         ${label}

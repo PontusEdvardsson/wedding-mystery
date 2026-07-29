@@ -62,7 +62,11 @@ function renderCipher() {
   }
 
   cipherText.className = "cipher-text";
-  cipherText.textContent = state.solved ? puzzle.decodedText : state.currentDisplay;
+  renderCipherValue(
+    cipherText,
+    state.solved ? puzzle.decodedText : state.currentDisplay,
+    state.solved
+  );
   cipherText.setAttribute("aria-live", state.solved ? "polite" : "off");
   wrapper.appendChild(cipherText);
 
@@ -121,6 +125,10 @@ function renderSuccess() {
     text.textContent = puzzle.successText;
     success.appendChild(text);
   }
+
+  const status = document.createElement("span");
+  status.textContent = "Nästa lås väntar.";
+  success.appendChild(status);
 
   Mystery.renderNextAction(step.id, nextAction);
   success.appendChild(nextAction);
@@ -190,7 +198,35 @@ function animateDecode() {
 }
 
 function formatCipherOutput(words) {
-  return words.map((word) => word.join("")).join("   ");
+  return words.map((word) => word.join(" ")).join("   ");
+}
+
+function renderCipherValue(container, value, isDecoded) {
+  container.replaceChildren();
+  container.setAttribute("aria-label", value.replace(/\s+/g, " ").trim());
+
+  if (isDecoded) {
+    container.textContent = value;
+    return;
+  }
+
+  value
+    .trim()
+    .split(/\s{2,}/)
+    .forEach((word) => {
+      const wordElement = document.createElement("span");
+      wordElement.className = "cipher-word";
+      wordElement.setAttribute("aria-hidden", "true");
+
+      word.split(/\s+/).forEach((symbol) => {
+        const symbolElement = document.createElement("span");
+        symbolElement.className = "cipher-symbol";
+        symbolElement.textContent = symbol;
+        wordElement.appendChild(symbolElement);
+      });
+
+      container.appendChild(wordElement);
+    });
 }
 
 function renderDisplay(value) {

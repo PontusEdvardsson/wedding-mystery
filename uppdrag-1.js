@@ -142,13 +142,10 @@ function renderSolvedMessage() {
   const container = document.createElement("div");
   const firstLine = document.createElement("strong");
   const secondLine = document.createElement("span");
-  const nextStep = Mystery.getNextStep(step.id);
 
   container.className = "solved-message";
   firstLine.textContent = "Första låset är öppnat.";
-  secondLine.textContent = nextStep && Mystery.isTimeUnlocked(nextStep)
-    ? "Nästa ledtråd väntar."
-    : "Jakten fortsätter när nästa ledtråd anländer.";
+  secondLine.textContent = "Nästa lås väntar.";
 
   container.append(firstLine, secondLine);
   return container;

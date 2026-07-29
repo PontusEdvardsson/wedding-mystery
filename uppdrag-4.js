@@ -97,7 +97,7 @@ function renderSudoku() {
 
     success.className = "sudoku-success";
     success.innerHTML = nextStep
-      ? `<strong>Korrekt.</strong><span>Nästa ledtråd väntar.</span>`
+      ? `<strong>Korrekt.</strong><span>Nästa lås väntar.</span>`
       : `<strong>Korrekt.</strong>`;
     Mystery.renderNextAction(step.id, nextAction);
     success.appendChild(nextAction);

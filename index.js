@@ -67,7 +67,7 @@ function updateHomeCountdown() {
     }
     homeCountdown.innerHTML = `
       <span class="countdown-ready">
-        <small>Alla ledtrådar är funna</small>
+        <small>Alla lås är öppna</small>
         <strong>Ett sista meddelande väntar</strong>
       </span>
     `;

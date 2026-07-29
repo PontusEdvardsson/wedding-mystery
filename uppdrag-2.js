@@ -112,7 +112,7 @@ function renderConnections() {
     success.className = "connections-success";
     success.innerHTML = `
       <strong>Alla trådar är funna.</strong>
-      <span>Nästa ledtråd väntar.</span>
+      <span>Nästa lås väntar.</span>
     `;
     Mystery.renderNextAction(step.id, nextAction);
     game.append(success, nextAction);
