@@ -97,7 +97,9 @@ function renderSudoku() {
 
     success.className = "sudoku-success";
     success.innerHTML = nextStep
-      ? `<strong>Korrekt.</strong><span>Nästa lås väntar.</span>`
+      ? `<strong>Korrekt.</strong><span>${
+          nextStep.ending ? "Mysteriets avslutning väntar." : "Nästa lås väntar."
+        }</span>`
       : `<strong>Korrekt.</strong>`;
     Mystery.renderNextAction(step.id, nextAction);
     success.appendChild(nextAction);
@@ -164,6 +166,7 @@ function renderBoard() {
         button.classList.add("is-revealed-given");
       }
     } else {
+      button.addEventListener("click", () => selectCell(cell));
       button.addEventListener("focus", () => {
         focusedCell = cell;
       });
@@ -257,7 +260,7 @@ function renderActiveClue() {
 function renderNumberHelp() {
   const help = document.createElement("p");
   help.className = "sudoku-instruction sudoku-drag-help";
-  help.textContent = "Dra och släpp siffror på rätt ställen.";
+  help.textContent = "Välj en ruta och tryck på en siffra, eller dra och släpp.";
   return help;
 }
 
@@ -324,8 +327,10 @@ function renderNumberBank() {
 
 function toggleGivenClue(cell) {
   activeClueCell = activeClueCell === cell ? null : cell;
+  focusedCell = cell;
+  selectedNumber = getCellValue(cell) || null;
   renderSudoku();
-  focusCell(cell);
+  focusCell(cell, { includeGiven: true });
 }
 
 function handleGivenKeydown(cell, event) {
@@ -376,9 +381,35 @@ function renderActions() {
 }
 
 function selectNumber(value) {
-  selectedNumber = selectedNumber === value ? null : value;
+  selectedNumber = value;
+
+  if (focusedCell !== null && isEditableCell(focusedCell)) {
+    setCellValue(focusedCell, value);
+    return;
+  }
+
   renderSudoku();
   focusCell(focusedCell);
+}
+
+function selectCell(cell) {
+  if (!isEditableCell(cell)) return;
+
+  focusedCell = cell;
+  selectedNumber = getCellValue(cell) || null;
+  renderSudoku();
+  focusCell(cell, { includeGiven: true });
+}
+
+function isEditableCell(cell) {
+  const given = givenMap.get(cell);
+  return !state.completed && !(given && state.givensRevealed);
+}
+
+function getCellValue(cell) {
+  return givenMap.has(cell)
+    ? state.givenEntries[cell] || ""
+    : state.entries[cell] || "";
 }
 
 function handleCellDrop(cell, event) {
@@ -440,6 +471,9 @@ function handleNumberPointerUp(event) {
   if (pointerDrag.moved) {
     event.preventDefault();
     suppressNextNumberClick = true;
+    window.setTimeout(() => {
+      suppressNextNumberClick = false;
+    }, 0);
 
     const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".sudoku-cell");
     const cells = [...document.querySelectorAll(".sudoku-cell")];
@@ -471,6 +505,7 @@ function setCellValue(cell, rawValue) {
 
   focusedCell = cell;
   const value = String(rawValue).replace(/[^1-9]/g, "").slice(0, 1);
+  selectedNumber = value || null;
 
   if (given && value) {
     state.givenEntries[cell] = value;

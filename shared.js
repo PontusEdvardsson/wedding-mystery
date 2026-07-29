@@ -304,7 +304,9 @@ const Mystery = (() => {
 
     if (!container || !nextStep) return;
 
-    const label = "Gå vidare till nästa lås";
+    const label = nextStep.ending
+      ? "Gå vidare till mysteriets avslutning"
+      : "Gå vidare till nästa lås";
     container.innerHTML = `
       <a class="primary-action next-action" href="${linkTo(nextStep.page)}">
         ${label}
